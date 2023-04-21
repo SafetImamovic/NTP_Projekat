@@ -5,13 +5,17 @@
 #include "io.h"
 using namespace std;
 
+int boja = 13;
+int *pBoja = &boja;
+
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 int meni(int brojOpcija);
-void odabranaBoja(){SetConsoleTextAttribute(h, 13);}
+void odabranaBoja(){SetConsoleTextAttribute(h, boja);}
 void vratiBoju(){SetConsoleTextAttribute(h, 15);}
 void printajNaslov();
 void teg();
 void printajGrafik();
+void opcijePromjena();
 
 char Bar = char(0x16), B = char(219), E = char(0x08);
 char const BAR[5] = {B, Bar, Bar, Bar, B};
@@ -19,11 +23,46 @@ char const BAR[5] = {B, Bar, Bar, Bar, B};
 int main()
 {
 	int brojOpcija = 7;
-	int odabir = 1;
+	int odabir;
 	do
 	{
 		odabir = meni(brojOpcija);
+			switch(odabir)
+		{
+			case 1:
+		{
+			break;
+		}
+		case 2:
+		{
+			break;
+		}
+		case 3:
+		{
+			break;
+		}
+		case 4:
+		{
+			break;
+		}
+		case 5:
+		{
+			break;
+		}
+		case 6:
+		{
+			opcijePromjena();
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
 	}while(odabir != brojOpcija);
+	
+
+	
 	system("PAUSE");
 	return 0;
 }
@@ -73,7 +112,7 @@ int meni(int brojOpcija)
 	OPCIJE[2] = "Opcija 3";
 	OPCIJE[3] = "Opcija 4";
 	OPCIJE[4] = "Opcija 5";
-	OPCIJE[5] = "Opcija 6";
+	OPCIJE[5] = "Opcije";
 	OPCIJE[6] = "EXIT";	
 	
 	int key = 0, odabir = 1;
@@ -99,4 +138,59 @@ int meni(int brojOpcija)
 		else if(odabir < 1)		odabir = brojOpcija;
 	}
 	return odabir;
+}
+
+void opcijePromjena()
+{
+	int brojOpcija = 2, key = 0, odabir = 1;
+	char const* OPCIJE[brojOpcija];
+	OPCIJE[0] = "Promjeni Boju";
+	OPCIJE[1] = "Nazad";
+	while(key != 13)
+	{
+		system("CLS");
+		int p = 0;
+		while(p < brojOpcija)
+		{
+			if(odabir != p+1){	cout << "\t      " << OPCIJE[p];	}	
+			else{	odabranaBoja(); cout << "\t" << BAR << " " << OPCIJE[p]; vratiBoju();	}
+			cout << "\n"; p++;	
+		}
+		key = getch();
+	
+		if(key == 80)			odabir++;
+		else if(key == 72)		odabir--;
+	
+		if(odabir > brojOpcija)	odabir = 1;
+		else if(odabir < 1)		odabir = brojOpcija;
+	}
+	switch(odabir)
+	{
+		case 1:
+		{
+			int odabir1 = 2, key1 = 0;
+			while(key1 != 13)
+			{
+				boja = odabir1 - 1;
+				system("CLS");
+				cout << "\t[<-]"; odabranaBoja();
+				cout << "   (" << boja << "/15) Primjer TEXTA  "; vratiBoju();
+				cout << "[->]\n";
+				key1 = getch();
+				
+				if(key1 == 77)			{
+				odabir1++;}
+				else if(key1 == 75)		{
+				odabir1--;}
+	
+				if(odabir1 > 16)			odabir1 = 2;
+				else if(odabir1 < 2)		odabir1 = 16;
+			}
+			break;			
+		}
+		default:
+		{
+			break;
+		}
+	}
 }
