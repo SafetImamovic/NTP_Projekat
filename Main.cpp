@@ -5,8 +5,18 @@
 #include "io.h"
 using namespace std;
 
+float lokacija = 1;
+float *pLokacija = &lokacija;
+//lokacija = 1, Meni
+//lokacija = 1.1, prva opcija
+//lokacija = 1.2, druga opcija itd
+//lokacija = 1.1.1, prva opcija u prvoj opciji itd
+char Bar = char(0x16), B = char(219), E = char(0x08);
+char const BAR[5] = {B, Bar, Bar, Bar, B};
 int bojaReal = 13, boja;
 int *pBojaReal = &bojaReal;
+bool tipSelekcije = true;
+bool *pTipSelekcije = &tipSelekcije;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 int meni(int brojOpcija);
@@ -16,9 +26,79 @@ void printajNaslov();
 void teg();
 void printajGrafik();
 void opcijePromjena();
+int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija)
+{
+	int odabir = 1;
+	if(*pTipSelekcije == true)
+	{
+		int key = 0;
+		while(key != 13)
+		{
+			system("CLS");
+			if(lokacija == 1.0)
+				printajNaslov();
+			else{}
+			cout << "\n";
 
-char Bar = char(0x16), B = char(219), E = char(0x08);
-char const BAR[5] = {B, Bar, Bar, Bar, B};
+			int p = 0;
+			while(p < brojOpcija)
+			{
+				if(odabir != p+1){	cout << "\t      " << OPCIJE[p];	}	
+				else{	odabranaBoja(); cout << "\t" << BAR << " " << OPCIJE[p]; vratiBoju();	}
+				cout << "\n"; p++;	
+				
+			}
+			if(lokacija != 1.0)
+					cout << "\n\tNAZAD [ESC]\n";
+			key = getch();
+	
+			if(key == 80)			odabir++;
+			else if(key == 72)		odabir--;
+	
+			if(odabir > brojOpcija)	odabir = 1;
+			else if(odabir < 1)		odabir = brojOpcija;
+			
+			if(lokacija != 1.0)
+			{
+				if(key == 27)
+					return 10;
+			}
+		}
+		
+		return odabir;
+	}
+	else
+	{
+		int i;
+		do
+		{
+			system("CLS");
+				printajNaslov();
+			odabranaBoja();
+			cout << "\n";
+			if(cin.fail() || odabir < 1 || odabir > brojOpcija)
+			{
+				cin.clear();
+				cin.ignore(1000, '\n');
+			}
+			for(i = 0; i < brojOpcija; i++)
+				cout << "\t" << i + 1 << ". " << OPCIJE[i] << "\n";
+			if(lokacija != 1)
+				cout << "\t" << i + 1 << ". Nazad\n";	
+			
+			cout << "\t"; cin >> odabir;
+			if(odabir == brojOpcija + 1)
+			{
+				return 10;
+				break;
+			}
+				
+		}while(cin.fail() || odabir < 1 || odabir > brojOpcija);
+		return odabir;
+	}
+}
+
+
 
 int main()
 {
@@ -62,8 +142,6 @@ int main()
 	}
 	}while(odabir != brojOpcija);
 	
-
-	
 	system("PAUSE");
 	return 0;
 }
@@ -106,7 +184,7 @@ vratiBoju();
 
 int meni(int brojOpcija)
 {
-	
+	lokacija = 1;
 	char const* OPCIJE[brojOpcija];
 	OPCIJE[0] = "Opcija 1";
 	OPCIJE[1] = "Opcija 2";
@@ -115,68 +193,39 @@ int meni(int brojOpcija)
 	OPCIJE[4] = "Opcija 5";
 	OPCIJE[5] = "Opcije";
 	OPCIJE[6] = "EXIT";	
-	
-	int key = 0, odabir = 1;
-	while(key != 13)
-	{
-		system("CLS");
-			printajNaslov();
-		cout << "\n\n\n";
-
-		int p = 0;
-		while(p < brojOpcija)
-		{
-			if(odabir != p+1){	cout << "\t      " << OPCIJE[p];	}	
-			else{	odabranaBoja(); cout << "\t" << BAR << " " << OPCIJE[p]; vratiBoju();	}
-			cout << "\n"; p++;	
-		}
-		key = getch();
-	
-		if(key == 80)			odabir++;
-		else if(key == 72)		odabir--;
-	
-		if(odabir > brojOpcija)	odabir = 1;
-		else if(odabir < 1)		odabir = brojOpcija;
-	}
-	return odabir;
+	selekcijaLogika(OPCIJE, brojOpcija, lokacija);
 }
 
 void opcijePromjena()
 {
+	lokacija = 1.6;
+	ulaz:
 	int brojOpcija = 2, key = 0, odabir = 1;
 	char const* OPCIJE[brojOpcija];
 	OPCIJE[0] = "Promjeni Boju";
-	OPCIJE[1] = "Nazad";
-	while(key != 13)
-	{
-		system("CLS");
-		cout << "\n\n";
-		int p = 0;
-		while(p < brojOpcija)
-		{
-			if(odabir != p+1){	cout << "\t      " << OPCIJE[p];	}	
-			else{	odabranaBoja(); cout << "\t" << BAR << " " << OPCIJE[p]; vratiBoju();	}
-			cout << "\n"; p++;	
-		}
-		key = getch();
+	OPCIJE[1] = "Promjeni Nacin Unosa";
 	
-		if(key == 80)			odabir++;
-		else if(key == 72)		odabir--;
+	char const* OPCIJE1[2];
+	OPCIJE1[0] = "Unos Preko ARROW KEYS";
+	OPCIJE1[1] = "Unos Preko BROJEVA";
 	
-		if(odabir > brojOpcija)	odabir = 1;
-		else if(odabir < 1)		odabir = brojOpcija;
-	}
-	switch(odabir)
+	int choice = selekcijaLogika(OPCIJE, brojOpcija, lokacija);
+	if(choice == 10)
+		goto izlaz;
+		
+	switch(choice)
 	{
+		
 		case 1:
 		{
+			lokacija = 1.61;
 			int odabir1 = 2, key1 = 0, boja;
 			while(key1 != 13)
 			{
 				boja = odabir1 - 1;
 				system("CLS");
 				cout << "\n\n";
-				cout << "\t[<-]"; SetConsoleTextAttribute(h, odabir1);
+				cout << "\t[<-]"; SetConsoleTextAttribute(h, boja);
 				cout << "   (" << boja << "/15) Primjer TEXTA  "; SetConsoleTextAttribute(h, 15);
 				cout << "[->]\n\n";
 				cout << "\tNAZAD [ESC]\n";
@@ -192,19 +241,40 @@ void opcijePromjena()
 				
 				if(key1 == 13)
 				{
-					*pBojaReal = odabir1;
+					*pBojaReal = boja;
 					break;
 				}
 					
-				
 				if(key1 == 27)
-					break;
+					goto ulaz;
 			}
 			break;		
 		}
+		case 2:
+			{
+				int choice1 = selekcijaLogika(OPCIJE1, 2, lokacija); 
+				if(choice1 == 10)
+					goto ulaz;
+				if(choice1 == 1)
+				{
+					*pTipSelekcije = true;
+					goto ulaz;
+				}
+				else
+				{
+					*pTipSelekcije = false;
+					goto ulaz;
+				}
+					
+				break;
+			}
 		default:
 		{
 			break;
+			izlaz:
+				{
+					
+				}
 		}
 	}
 }
