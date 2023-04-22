@@ -5,12 +5,12 @@
 #include "io.h"
 using namespace std;
 
-int boja = 13;
-int *pBoja = &boja;
+int bojaReal = 13, boja;
+int *pBojaReal = &bojaReal;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 int meni(int brojOpcija);
-void odabranaBoja(){SetConsoleTextAttribute(h, boja);}
+void odabranaBoja(){SetConsoleTextAttribute(h, bojaReal);}
 void vratiBoju(){SetConsoleTextAttribute(h, 15);}
 void printajNaslov();
 void teg();
@@ -56,6 +56,7 @@ int main()
 		}
 		default:
 		{
+			
 			break;
 		}
 	}
@@ -95,11 +96,11 @@ cout << "                           \\:::\\    \\                |::|   |       
 cout << "                            \\:::\\____\\               \\::|   |                 \\:::\\____\\                                     /:::/    /               /:::/    /               /:::/    /       " << "\n";
 cout << "                             \\::/    /                \\:|   |                  \\::/    /                                     \\::/    /                \\::/    /                \\::/    /        " << "\n";
 cout << "                              \\/____/                  \\|___|                   \\/____/                                       \\/____/                  \\/____/                  \\/____/         " << "\n\n\n";
-cout << "  ___  _      _                            _   _                  ___         __                             _   _       " << endl;
-cout << " / __|(_) ___| |_  ___  _ __    ___ __ _  | | | | _ _   ___  ___ |_ _| _ _   / _| ___  _ _  _ __   __ _  __ (_) (_) __ _ " << endl;
-cout << " \\__ \\| |(_-<|  _|/ -_)| '  \\  |_ // _` | | |_| || ' \\ / _ \\(_-<  | | | ' \\ |  _|/ _ \\| '_|| '  \\ / _` |/ _|| | | |/ _` |" << endl;
-cout << " |___/|_|/__/ \\__|\\___||_|_|_| /__|\\__,_|  \\___/ |_||_|\\___//__/ |___||_||_||_|  \\___/|_|  |_|_|_|\\__,_|\\__||_|_/ |\\__,_|" << endl;
-cout << "                                                                                                              |__/       " << endl;
+//cout << "  ___  _      _                            _   _                  ___         __                             _   _       " << endl;
+//cout << " / __|(_) ___| |_  ___  _ __    ___ __ _  | | | | _ _   ___  ___ |_ _| _ _   / _| ___  _ _  _ __   __ _  __ (_) (_) __ _ " << endl;
+//cout << " \\__ \\| |(_-<|  _|/ -_)| '  \\  |_ // _` | | |_| || ' \\ / _ \\(_-<  | | | ' \\ |  _|/ _ \\| '_|| '  \\ / _` |/ _|| | | |/ _` |" << endl;
+//cout << " |___/|_|/__/ \\__|\\___||_|_|_| /__|\\__,_|  \\___/ |_||_|\\___//__/ |___||_||_||_|  \\___/|_|  |_|_|_|\\__,_|\\__||_|_/ |\\__,_|" << endl;
+//cout << "                                                                                                              |__/       " << endl;
 vratiBoju();
 }
 
@@ -149,6 +150,7 @@ void opcijePromjena()
 	while(key != 13)
 	{
 		system("CLS");
+		cout << "\n\n";
 		int p = 0;
 		while(p < brojOpcija)
 		{
@@ -168,14 +170,16 @@ void opcijePromjena()
 	{
 		case 1:
 		{
-			int odabir1 = 2, key1 = 0;
+			int odabir1 = 2, key1 = 0, boja;
 			while(key1 != 13)
 			{
 				boja = odabir1 - 1;
 				system("CLS");
-				cout << "\t[<-]"; odabranaBoja();
-				cout << "   (" << boja << "/15) Primjer TEXTA  "; vratiBoju();
-				cout << "[->]\n";
+				cout << "\n\n";
+				cout << "\t[<-]"; SetConsoleTextAttribute(h, odabir1);
+				cout << "   (" << boja << "/15) Primjer TEXTA  "; SetConsoleTextAttribute(h, 15);
+				cout << "[->]\n\n";
+				cout << "\tNAZAD [ESC]\n";
 				key1 = getch();
 				
 				if(key1 == 77)			{
@@ -185,8 +189,18 @@ void opcijePromjena()
 	
 				if(odabir1 > 16)			odabir1 = 2;
 				else if(odabir1 < 2)		odabir1 = 16;
+				
+				if(key1 == 13)
+				{
+					*pBojaReal = odabir1;
+					break;
+				}
+					
+				
+				if(key1 == 27)
+					break;
 			}
-			break;			
+			break;		
 		}
 		default:
 		{
