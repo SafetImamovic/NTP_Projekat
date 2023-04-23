@@ -17,14 +17,33 @@ int bojaReal = 13, boja;
 int *pBojaReal = &bojaReal;
 bool tipSelekcije = true;
 bool *pTipSelekcije = &tipSelekcije;
+bool tipFormatDatuma = true;
+bool *pTipFormatDatuma = &tipFormatDatuma;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+
+void ShowConsoleCursor(bool showFlag)
+{
+    CONSOLE_CURSOR_INFO cursorInfo;
+    GetConsoleCursorInfo(h, &cursorInfo);
+    cursorInfo.bVisible = showFlag; // set the cursor visibility
+    SetConsoleCursorInfo(h, &cursorInfo);
+}
+
 int meni(int brojOpcija);
 void odabranaBoja(){SetConsoleTextAttribute(h, bojaReal);}
 void vratiBoju(){SetConsoleTextAttribute(h, 15);}
 void printajNaslov();
 void teg();
-void printajGrafik();
+void printajGrafik()
+{
+cout << "\t  _____  _____  _____ __  __      _ ______ _____  " << "\n";
+cout << "\t |  __ \\|  __ \\|_   _|  \\/  |    | |  ____|  __ \\ " << "\n";
+cout << "\t | |__) | |__) | | | | \\  / |    | | |__  | |__) |" << "\n";
+cout << "\t |  ___/|  _  /  | | | |\\/| |_   | |  __| |  _  / " << "\n";
+cout << "\t | |    | | \\ \\ _| |_| |  | | |__| | |____| | \\ \\ " << "\n";
+cout << "\t |_|    |_|  \\_\\_____|_|  |_|\\____/|______|_|  \\_\\" << "\n";
+}
 void opcijePromjena();
 int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char const* naslov)
 {
@@ -35,6 +54,7 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 		while(key != 13)
 		{
 			system("CLS");
+			ShowConsoleCursor(false);
 			if(lokacija == 1.0)
 				printajNaslov();
 			else
@@ -62,12 +82,8 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 			else if(odabir < 1)		odabir = brojOpcija;
 			
 			if(lokacija != 1.0)
-			{
-				if(key == 27)
-					return 10;
-			}
+				if(key == 27) return -1;
 		}
-		
 		return odabir;
 	}
 	else
@@ -76,9 +92,9 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 		do
 		{
 			system("CLS");
+			ShowConsoleCursor(true);
 			odabranaBoja();
-			if(lokacija == 1.0)
-				printajNaslov();
+			if(lokacija == 1.0) printajNaslov();
 			cout << "\t" << naslov << "\n";
 			odabranaBoja();
 			cout << "\n";
@@ -87,18 +103,15 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 				cin.clear();
 				cin.ignore(1000, '\n');
 			}
-			for(i = 0; i < brojOpcija; i++)
-				cout << "\t" << i + 1 << ". " << OPCIJE[i] << "\n";
-			if(lokacija != 1)
-				cout << "\t" << i + 1 << ". Nazad\n";	
+			for(i = 0; i < brojOpcija; i++) cout << "\t" << i + 1 << ". " << OPCIJE[i] << "\n";
+			if(lokacija != 1) cout << "\t" << i + 1 << ". Nazad\n";	
 			
 			cout << "\t"; cin >> odabir;
 			if(odabir == brojOpcija + 1)
 			{
-				return 10;
+				return -1;
 				break;
 			}
-				
 		}while(cin.fail() || odabir < 1 || odabir > brojOpcija);
 		return odabir;
 	}
@@ -113,7 +126,7 @@ int main()
 	do
 	{
 		odabir = meni(brojOpcija);
-			switch(odabir)
+		switch(odabir)
 		{
 			case 1:
 		{
@@ -150,10 +163,6 @@ int main()
 	
 	system("PAUSE");
 	return 0;
-}
-
-void printajGrafik()
-{
 }
 
 void printajNaslov()
@@ -204,110 +213,133 @@ int meni(int brojOpcija)
 
 void opcijePromjena()
 {
-	lokacija = 1.6;
 	ulaz:
-	int brojOpcija = 2, key = 0, odabir = 1;
+	lokacija = 1.6;
+	int brojOpcija = 3, key = 0, odabir = 1;
 	char const* OPCIJE[brojOpcija];
 	OPCIJE[0] = "Promjeni Boju";
 	OPCIJE[1] = "Promjeni Nacin Unosa";
+	OPCIJE[2] = "Promjeni Format Datuma";
 	
 	char const* OPCIJE1[2];
 	OPCIJE1[0] = "Unos Preko ARROW KEYS";
 	OPCIJE1[1] = "Unos Preko BROJEVA";
 	
+	char const* DATUM[2];
+	DATUM[0] = "DD/MM/GGGG";
+	DATUM[1] = "MM/DD/GGGG";
+	
 	int choice = selekcijaLogika(OPCIJE, brojOpcija, lokacija, "OPCIJE:");
-	if(choice == 10)
-		goto izlaz;
+	if(choice == -1) goto izlaz;
 		
 	switch(choice)
 	{
 		
 		case 1:
 		{
+			case1:
 			lokacija = 1.61;
-			int odabir1 = 2, key1 = 0, boja;
+			int odabir1 = *pBojaReal+1, key1 = 0, boja;
 			int odabir2;
 			if(*pTipSelekcije)
 			{
 				while(key1 != 13)
 				{
-				boja = odabir1 - 1;
-				system("CLS");
-				SetConsoleTextAttribute(h, 15);
-				cout << "\tOdaberite Boju:";
-				cout << "\n\n"; SetConsoleTextAttribute(h, 15);
-				cout << "\t[<-]"; SetConsoleTextAttribute(h, boja);
-				cout << "   (" << boja << "/15) Primjer TEXTA  "; SetConsoleTextAttribute(h, 15);
-				cout << "[->]\n\n";
-				cout << "\tNAZAD [ESC]\n";
-				key1 = getch();
+					boja = odabir1 - 1;
+					system("CLS");
+					SetConsoleTextAttribute(h, *pBojaReal);
+					cout << "\tOdaberite Boju:";
+					cout << "\n\n"; SetConsoleTextAttribute(h, *pBojaReal);
+					cout << "\t[<-]"; SetConsoleTextAttribute(h, boja);
+					cout << "   (" << boja << "/15) Primjer TEXTA  "; SetConsoleTextAttribute(h, *pBojaReal);
+					cout << "[->]\n\n";
+					SetConsoleTextAttribute(h, boja);
+					printajGrafik();
+					SetConsoleTextAttribute(h, *pBojaReal);
+					cout << "\n";
+					cout << "\tNAZAD [ESC]\n";
+					key1 = getch();
 				
-				if(key1 == 77)			{
-				odabir1++;}
-				else if(key1 == 75)		{
-				odabir1--;}
+					if(key1 == 77) odabir1++;
+					else if(key1 == 75) odabir1--;
 	
-				if(odabir1 > 16)			odabir1 = 2;
-				else if(odabir1 < 2)		odabir1 = 16;
+					if(odabir1 > 16) odabir1 = 2;
+					else if(odabir1 < 2) odabir1 = 16;
 				
-				if(key1 == 13)
-				{
-					*pBojaReal = boja;
-					goto ulaz;
-					break;
-				}
-					
-				if(key1 == 27)
-					goto ulaz;
+					if(key1 == 13)
+					{
+						*pBojaReal = boja;
+						goto case1;
+						break;
+					}
+					if(key1 == 27) goto ulaz;
 				}
 			}
-			else if(!*pTipSelekcije)
+			else
 			{
 				int i;
-				system("CLS");
-				SetConsoleTextAttribute(h, 15);
-				cout << "\tOdaberite Boju:\n\n";
-				for(i = 0; i < 15; i++)
+				do
 				{
-					SetConsoleTextAttribute(h, 15);
-					cout << "\t" << i + 1;
-					cout << ".\t "; SetConsoleTextAttribute(h, i+1);
-					cout << "PRIMJER TEXTA" << "\n";
-				}
-				cout << "\t" << i + 1 << ".\t NAZAD\n\t";
-				cin >> odabir2;
-				if(odabir2 == 16)
-					goto ulaz;
+					system("CLS");
+					SetConsoleTextAttribute(h, *pBojaReal);
+					cout << "\tOdaberite Boju:\n";
+					printajGrafik();
+					cout << "\n";
+					for(i = 0; i < 15; i++)
+					{
+						SetConsoleTextAttribute(h, *pBojaReal);
+						cout << "\t" << i + 1;
+						cout << ".\t "; SetConsoleTextAttribute(h, i+1);
+						cout << "PRIMJER TEXTA" << "\n";
+					}
+					SetConsoleTextAttribute(h, *pBojaReal);
+					cout << "\t" << i + 1 << ".\t NAZAD\n\t";
+					if(cin.fail() || odabir2 < 1 || odabir2 > 15)
+					{
+						cin.clear();
+						cin.ignore(1000, '\n');
+					}
+					cin >> odabir2;	
+					if(odabir2 == 16) break;
+				}while(cin.fail() || odabir2 < 1 || odabir2 > 15);
+				
+				if(odabir2 == 16) goto ulaz;
 				else if(odabir2 != 16)
 				{
 					*pBojaReal = odabir2;
-					goto ulaz;
+					goto case1;
 				}
-					
 			}
 			break;		
 		}
 		case 2:
-			{
-				lokacija = 1.62;
-				case2:
-				int choice1 = selekcijaLogika(OPCIJE1, 2, lokacija, "NACIN UNOSA:"); 
-				if(choice1 == 10)
-					goto ulaz;
-				if(choice1 == 1)
-					*pTipSelekcije = true;
-				else
-					*pTipSelekcije = false;
-				goto case2;
-				break;
-			}
+		{
+			lokacija = 1.62;
+			case2:
+			int choice1 = selekcijaLogika(OPCIJE1, 2, lokacija, "NACIN UNOSA:"); 
+			if(choice1 == -1) goto ulaz;
+			if(choice1 == 1) *pTipSelekcije = true;
+			else *pTipSelekcije = false;
+			goto case2;
+			break;
+		}
+		case 3:
+		{
+			char const* tempDatum;
+			lokacija = 1.63;
+			case3:
+			if(*pTipFormatDatuma) tempDatum = "TRENUTNI FORMAT: DD/MM/GGGG";
+			else tempDatum = "TRENUTNI FORMAT: MM/DD/GGGG";
+			int odabirFormatDatuma = selekcijaLogika(DATUM, 2, lokacija, tempDatum);
+			if(odabirFormatDatuma == -1) goto ulaz;
+			if(odabirFormatDatuma == 1)	*pTipFormatDatuma = true;
+			else *pTipFormatDatuma = false;
+			goto case3;
+			break;
+		}
 		default:
 		{
-			break;
-			izlaz:
-				{
-					
-				}
+			break; izlaz:{}
 		}
 	}
 }
