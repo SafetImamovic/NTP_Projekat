@@ -1,3 +1,4 @@
+//sistem za uclanivanje u sportski klub ili teretuanu, odredjivanje termina treninga itd
 #include <iostream>
 #include <conio.h>
 #include <windows.h>
@@ -5,16 +6,15 @@
 #include "io.h"
 #include <thread>
 #include <chrono>
-
+#include <iomanip>
+#include "Includes/grafici.h"
+#include <cstring>
 using namespace std;
 
-float lokacija = 1;
-float *pLokacija = &lokacija;
+char const* LOKACIJA = "1.0.0.0";
 //lokacija = 1, Meni lokacija = 1.1, prva opcija lokacija = 1.2, druga opcija itd lokacija = 1.11, prva opcija u prvoj opciji itd
-char Bar = char(0x16), B = char(219), E = char(0x08);
-char Be = char(254);
-char const BAR[5] = {B, Bar, Bar, Bar, B};
-int bojaReal = 4, boja;
+
+int bojaReal = 9, boja;
 int *pBojaReal = &bojaReal;
 bool tipSelekcije = true;
 bool *pTipSelekcije = &tipSelekcije;
@@ -32,34 +32,18 @@ void ShowConsoleCursor(bool showFlag)
     cursorInfo.bVisible = showFlag; // set the cursor visibility
     SetConsoleCursorInfo(h, &cursorInfo);
 }
-
+ 
 int meni(int brojOpcija);
 void odabranaBoja(){SetConsoleTextAttribute(h, bojaReal);}
 void vratiBoju(){SetConsoleTextAttribute(h, 15);}
 void printajNaslov();
 void teg();
-void printajTeg()
-{
-	SetConsoleTextAttribute(h, *pBojaReal);
-	cout << "\n";
-	cout << "\t   " << B << B << "|" << B << B <<"           " << B << B << "|" << B << B << "\n";
-	cout << "\t   " << B << B << "|" << B << B <<"           " << B << B << "|" << B << B << "\n";
-	cout << "\t" << Be << Be << B << B << B << B << B << B << B << Be << Be << Be << Be << Be << Be << Be << Be << Be << B << B << B << B << B << B << B << Be << Be << "\n";
-	cout << "\t   " << B << B << "|" << B << B <<"           " << B << B << "|" << B << B << "\n";
-	cout << "\t   " << B << B << "|" << B << B <<"           " << B << B << "|" << B << B << "\n";
-	SetConsoleTextAttribute(h, 15);
-}
-void printajGrafik()
-{
-cout << "\t  _____  _____  _____ __  __      _ ______ _____  " << "\n";
-cout << "\t |  __ \\|  __ \\|_   _|  \\/  |    | |  ____|  __ \\ " << "\n";
-cout << "\t | |__) | |__) | | | | \\  / |    | | |__  | |__) |" << "\n";
-cout << "\t |  ___/|  _  /  | | | |\\/| |_   | |  __| |  _  / " << "\n";
-cout << "\t | |    | | \\ \\ _| |_| |  | | |__| | |____| | \\ \\ " << "\n";
-cout << "\t |_|    |_|  \\_\\_____|_|  |_|\\____/|______|_|  \\_\\" << "\n";
-}
+
 void opcijePromjena();
-int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char const* naslov)
+
+typedef void (*pFunkcija)();
+
+int selekcijaLogika(char const** OPCIJE, int brojOpcija, char const*& LOKACIJA, char const* naslov, pFunkcija pGrafik)
 {
 	int odabir = 1;
 	if(*pTipSelekcije == true)
@@ -69,11 +53,9 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 		{
 			system("CLS");
 			ShowConsoleCursor(false);
-			if(lokacija == 1.0)
-				printajNaslov();
-			else
-				vratiBoju();
-			cout << "\t" << naslov << "\n\n";
+			odabranaBoja(); pGrafik(); vratiBoju();
+			cout << "\t(" << odabir << "/" << brojOpcija << ") ";
+			cout << naslov << "\n\n";
 			int p = 0;
 			while(p < brojOpcija)
 			{
@@ -81,12 +63,11 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 				else{	odabranaBoja(); cout << "\t" << BAR << " " << OPCIJE[p]; vratiBoju();	}
 				cout << "\n"; p++;	
 			}
-			if(lokacija != 1.0)
+			if(LOKACIJA != "1.0.0.0")
 			{
 				cout << "\n\tNAZAD [ESC]\n";
-				if(*pPrikaziGrafik)
-				printajTeg();
-				else{}
+				cout << "\n";
+				odabranaBoja(); if(*pPrikaziGrafik) printajTeg(); vratiBoju();
 			}
 					
 			key = getch();
@@ -97,7 +78,7 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 			if(odabir > brojOpcija)	odabir = 1;
 			else if(odabir < 1)		odabir = brojOpcija;
 			
-			if(lokacija != 1.0)
+			if(LOKACIJA != "1.0.0.0")
 				if(key == 27) return -1;
 		}
 		return odabir;
@@ -109,8 +90,8 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 		{
 			system("CLS");
 			ShowConsoleCursor(true);
+			pGrafik();
 			odabranaBoja();
-			if(lokacija == 1.0) printajNaslov();
 			cout << "\t" << naslov << "\n";
 			odabranaBoja();
 			cout << "\n";
@@ -120,17 +101,20 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 				cin.ignore(1000, '\n');
 			}
 			for(i = 0; i < brojOpcija; i++) cout << "\t" << i + 1 << ". " << OPCIJE[i] << "\n";
-			if(lokacija != 1) 
+			if(LOKACIJA != "1.0.0.0") 
 			{
 				cout << "\t" << i + 1 << ". Nazad\n";
+				
 				if(*pPrikaziGrafik)
-				printajTeg();
+				{
+					cout << "\n";
+					printajTeg();
+				}
 				else{}
 			}	
 			
 			cout << "\n";
 			cout << "\t"; cin >> odabir;
-			
 			
 			if(odabir == brojOpcija + 1)
 			{
@@ -142,8 +126,6 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, float lokacija, char co
 	}
 }
 
-
-
 int main()
 {
 	int brojOpcija = 7;
@@ -154,35 +136,35 @@ int main()
 		switch(odabir)
 		{
 			case 1:
-		{
-			break;
-		}
-		case 2:
-		{
-			break;
-		}
-		case 3:
-		{
-			break;
-		}
-		case 4:
-		{
-			break;
-		}
-		case 5:
-		{
-			break;
-		}
-		case 6:
-		{
-			opcijePromjena();
-			break;
-		}
-		default:
-		{
-			
-			break;
-		}
+			{
+				break;
+			}
+			case 2:
+			{
+				break;
+			}
+			case 3:
+			{
+				break;
+			}
+			case 4:
+			{
+				break;
+			}
+			case 5:
+			{
+				break;
+			}
+			case 6:
+			{
+				opcijePromjena();
+				break;
+			}
+			default:
+			{
+				
+				break;
+			}
 	}
 	}while(odabir != brojOpcija);
 	
@@ -190,41 +172,8 @@ int main()
 	return 0;
 }
 
-void printajNaslov()
-{
-odabranaBoja();
-//cout << "      _____                    _____                    _____                    _____                _____                    _____                    _____                    _____          " << "\n";
-//cout << "     /\\    \\                  /\\    \\                  /\\    \\                  /\\    \\              /\\    \\                  /\\    \\                  /\\    \\                  /\\    \\         " << "\n";
-//cout << "    /::\\    \\                /::\\    \\                /::\\    \\                /::\\    \\            /::\\    \\                /::\\    \\                /::\\____\\                /::\\    \\        " << "\n";
-//cout << "    \\:::\\    \\              /::::\\    \\              /::::\\    \\              /::::\\    \\           \\:::\\    \\              /::::\\    \\              /::::|   |               /::::\\    \\       " << "\n";
-//cout << "     \\:::\\    \\            /::::::\\    \\            /::::::\\    \\            /::::::\\    \\           \\:::\\    \\            /::::::\\    \\            /:::::|   |              /::::::\\    \\      " << "\n";
-//cout << "      \\:::\\    \\          /:::/\\:::\\    \\          /:::/\\:::\\    \\          /:::/\\:::\\    \\           \\:::\\    \\          /:::/\\:::\\    \\          /::::::|   |             /:::/\\:::\\    \\     " << "\n";
-//cout << "       \\:::\\    \\        /:::/__\\:::\\    \\        /:::/__\\:::\\    \\        /:::/__\\:::\\    \\           \\:::\\    \\        /:::/__\\:::\\    \\        /:::/|::|   |            /:::/__\\:::\\    \\    " << "\n";
-//cout << "       /::::\\    \\      /::::\\   \\:::\\    \\      /::::\\   \\:::\\    \\      /::::\\   \\:::\\    \\          /::::\\    \\      /::::\\   \\:::\\    \\      /:::/ |::|   |           /::::\\   \\:::\\    \\   " << "\n";
-//cout << "      /::::::\\    \\    /::::::\\   \\:::\\    \\    /::::::\\   \\:::\\    \\    /::::::\\   \\:::\\    \\        /::::::\\    \\    /::::::\\   \\:::\\    \\    /:::/  |::|   | _____    /::::::\\   \\:::\\    \\  " << "\n";
-//cout << "     /:::/\\:::\\    \\  /:::/\\:::\\   \\:::\\    \\  /:::/\\:::\\   \\:::\\____\\  /:::/\\:::\\   \\:::\\    \\      /:::/\\:::\\    \\  /:::/\\:::\\   \\:::\\    \\  /:::/   |::|   |/\\    \\  /:::/\\:::\\   \\:::\\    \\ " << "\n";
-//cout << "    /:::/  \\:::\\____\\/:::/__\\:::\\   \\:::\\____\\/:::/  \\:::\\   \\:::|    |/:::/__\\:::\\   \\:::\\____\\    /:::/  \\:::\\____\\/:::/  \\:::\\   \\:::\\____\\/:: /    |::|   /::\\____\\/:::/  \\:::\\   \\:::\\____\\" << "\n";
-//cout << "   /:::/    \\::/    /\\:::\\   \\:::\\   \\::/    /\\::/   |::::\\  /:::|____|\\:::\\   \\:::\\   \\::/    /   /:::/    \\::/    /\\::/    \\:::\\  /:::/    /\\::/    /|::|  /:::/    /\\::/    \\:::\\  /:::/    /" << "\n";
-//cout << "  /:::/    / \\/____/  \\:::\\   \\:::\\   \\/____/  \\/____|:::::\\/:::/    /  \\:::\\   \\:::\\   \\/____/   /:::/    / \\/____/  \\/____/ \\:::\\/:::/    /  \\/____/ |::| /:::/    /  \\/____/ \\:::\\/:::/    / " << "\n";
-//cout << " /:::/    /            \\:::\\   \\:::\\    \\            |:::::::::/    /    \\:::\\   \\:::\\    \\      /:::/    /                    \\::::::/    /           |::|/:::/    /            \\::::::/    /  " << "\n";
-//cout << "/:::/    /              \\:::\\   \\:::\\____\\           |::|\\::::/    /      \\:::\\   \\:::\\____\\    /:::/    /                      \\::::/    /            |::::::/    /              \\::::/    /   " << "\n";
-//cout << "\\::/    /                \\:::\\   \\::/    /           |::| \\::/____/        \\:::\\   \\::/    /    \\::/    /                       /:::/    /             |:::::/    /               /:::/    /    " << "\n";
-//cout << " \\/____/                  \\:::\\   \\/____/            |::|  ~|               \\:::\\   \\/____/      \\/____/                       /:::/    /              |::::/    /               /:::/    /     " << "\n";
-//cout << "                           \\:::\\    \\                |::|   |                \\:::\\    \\                                       /:::/    /               /:::/    /               /:::/    /      " << "\n";
-//cout << "                            \\:::\\____\\               \\::|   |                 \\:::\\____\\                                     /:::/    /               /:::/    /               /:::/    /       " << "\n";
-//cout << "                             \\::/    /                \\:|   |                  \\::/    /                                     \\::/    /                \\::/    /                \\::/    /        " << "\n";
-//cout << "                              \\/____/                  \\|___|                   \\/____/                                       \\/____/                  \\/____/                  \\/____/         " << "\n\n\n";
-cout << "  ___  _      _                            _   _                  ___         __                             _   _       " << endl;
-cout << " / __|(_) ___| |_  ___  _ __    ___ __ _  | | | | _ _   ___  ___ |_ _| _ _   / _| ___  _ _  _ __   __ _  __ (_) (_) __ _ " << endl;
-cout << " \\__ \\| |(_-<|  _|/ -_)| '  \\  |_ // _` | | |_| || ' \\ / _ \\(_-<  | | | ' \\ |  _|/ _ \\| '_|| '  \\ / _` |/ _|| | | |/ _` |" << endl;
-cout << " |___/|_|/__/ \\__|\\___||_|_|_| /__|\\__,_|  \\___/ |_||_|\\___//__/ |___||_||_||_|  \\___/|_|  |_|_|_|\\__,_|\\__||_|_/ |\\__,_|" << endl;
-cout << "                                                                                                              |__/       " << endl;
-vratiBoju();
-}
-
 int meni(int brojOpcija)
 {
-	lokacija = 1;
 	char const* OPCIJE[brojOpcija];
 	OPCIJE[0] = "Opcija 1";
 	OPCIJE[1] = "Opcija 2";
@@ -233,19 +182,21 @@ int meni(int brojOpcija)
 	OPCIJE[4] = "Opcija 5";
 	OPCIJE[5] = "Opcije";
 	OPCIJE[6] = "EXIT";	
-	selekcijaLogika(OPCIJE, brojOpcija, lokacija, "");
+	LOKACIJA = "1.0.0.0";
+	selekcijaLogika(OPCIJE, brojOpcija, LOKACIJA, "MENI:", printajNaslov);
 }
 
 void opcijePromjena()
 {
 	ulaz:
-	lokacija = 1.6;
-	int brojOpcija = 4, key = 0, odabir = 1;
+	LOKACIJA = "1.6.0.0";
+	int brojOpcija = 5, key = 0, odabir = 1;
 	char const* OPCIJE[brojOpcija];
 	OPCIJE[0] = "Promjeni Boju";
 	OPCIJE[1] = "Promjeni Nacin Unosa";
 	OPCIJE[2] = "Promjeni Format Datuma";
 	OPCIJE[3] = "Prikazi Grafik";
+	OPCIJE[4] = "FACTORY RESET";
 	
 	char const* OPCIJE1[2];
 	OPCIJE1[0] = "Unos Preko ARROW KEYS";
@@ -255,11 +206,15 @@ void opcijePromjena()
 	DATUM[0] = "DD/MM/GGGG";
 	DATUM[1] = "MM/DD/GGGG";
 	
+	char const* RESET[2];
+	RESET[0] = "DA";
+	RESET[1] = "NE";
+	
 	char const* GRAFIK[2];
 	GRAFIK[0] = "PRIKAZI GRAFIK";
-	GRAFIK[1] = "NEPRIKAZI GRAFIK";
+	GRAFIK[1] = "NE PRIKAZI GRAFIK";
 	
-	int choice = selekcijaLogika(OPCIJE, brojOpcija, lokacija, "OPCIJE:");
+	int choice = selekcijaLogika(OPCIJE, brojOpcija, LOKACIJA, "OPCIJE:", printajNULL);
 	if(choice == -1) goto izlaz;
 		
 	switch(choice)
@@ -268,7 +223,7 @@ void opcijePromjena()
 		case 1:
 		{
 			case1:
-			lokacija = 1.61;
+			LOKACIJA = "1.6.1.0";
 			int odabir1 = *pBojaReal+1, key1 = 0, boja;
 			int odabir2;
 			if(*pTipSelekcije)
@@ -285,9 +240,11 @@ void opcijePromjena()
 					cout << "[->]\n\n";
 					SetConsoleTextAttribute(h, boja);
 					printajGrafik();
+					printajTeg();
 					SetConsoleTextAttribute(h, *pBojaReal);
 					cout << "\n";
 					cout << "\tNAZAD [ESC]\n";
+					
 					key1 = getch();
 				
 					if(key1 == 77) odabir1++;
@@ -299,10 +256,6 @@ void opcijePromjena()
 					if(key1 == 13)
 					{
 						*pBojaReal = boja;
-//						SetConsoleTextAttribute(h, *pBojaReal);
-//						cout << "\tUSPJESNA PROMJENA!";
-//						std::this_thread::sleep_for(std::chrono::seconds(1));
-						
 						goto case1;
 						break;
 					}
@@ -316,25 +269,35 @@ void opcijePromjena()
 				{
 					system("CLS");
 					SetConsoleTextAttribute(h, *pBojaReal);
-					cout << "\tODABERITE BOJU:\n";
+					cout << "\tODABERITE BOJU:\n\n";
 					printajGrafik();
-					cout << "\n";
+					cout << "\n\n";
 					for(i = 0; i < 8; i++)
 					{
 						SetConsoleTextAttribute(h, *pBojaReal);
-						cout << "\t" << i + 1;
-						cout << ".\t "; SetConsoleTextAttribute(h, i+1);
+						
+						cout << "\t" << i + 1 << ".\t"; SetConsoleTextAttribute(h, i+1);
+						
 						cout << "PRIMJER TEXTA";
-						cout << "\t\t";
+						if(i == *pBojaReal - 1)
+							cout << "\t" << BAR;
+						else
+							cout << "\t     ";
+						//cout << "\t\t";
 						if(i > 6)
 							break;
 						SetConsoleTextAttribute(h, *pBojaReal);
-						cout << "\t" << i + 1 + 8;
-						cout << ".\t "; SetConsoleTextAttribute(h, i+9);
-						cout << "PRIMJER TEXTA" << "\n";
+						
+						cout << "\t" << i + 1 + 8 << ".\t"; SetConsoleTextAttribute(h, i+9);
+						cout << "PRIMJER TEXTA";
+						if(i+8 == *pBojaReal - 1)
+							cout << "\t" << BAR;
+						else
+							cout << "\t     ";
+						cout << "\n";
 					}
 					SetConsoleTextAttribute(h, *pBojaReal);
-					cout << "\t" << 2*i+2 << ".\t NAZAD\n\t";
+					cout << "\t" << 2*i+2 << ".\tNAZAD\n\t";
 					if(cin.fail() || odabir2 < 1 || odabir2 > 15)
 					{
 						cin.clear();
@@ -355,9 +318,9 @@ void opcijePromjena()
 		}
 		case 2:
 		{
-			lokacija = 1.62;
+			LOKACIJA = "1.6.2.0";
 			case2:
-			int choice1 = selekcijaLogika(OPCIJE1, 2, lokacija, "NACIN UNOSA:"); 
+			int choice1 = selekcijaLogika(OPCIJE1, 2, LOKACIJA, "NACIN UNOSA:", printajNULL); 
 			if(choice1 == -1) goto ulaz;
 			if(choice1 == 1) *pTipSelekcije = true;
 			else *pTipSelekcije = false;
@@ -367,11 +330,11 @@ void opcijePromjena()
 		case 3:
 		{
 			char const* tempDatum;
-			lokacija = 1.63;
+			LOKACIJA = "1.6.3.0";
 			case3:
 			if(*pTipFormatDatuma) tempDatum = "TRENUTNI FORMAT: DD/MM/GGGG";
 			else tempDatum = "TRENUTNI FORMAT: MM/DD/GGGG";
-			int odabirFormatDatuma = selekcijaLogika(DATUM, 2, lokacija, tempDatum);
+			int odabirFormatDatuma = selekcijaLogika(DATUM, 2, LOKACIJA, tempDatum, printajNULL);
 			if(odabirFormatDatuma == -1) goto ulaz;
 			if(odabirFormatDatuma == 1)	*pTipFormatDatuma = true;
 			else *pTipFormatDatuma = false;
@@ -381,16 +344,32 @@ void opcijePromjena()
 		case 4:
 		{
 			char const* tempGrafik;
-			lokacija = 1.64;
+			LOKACIJA = "1.6.4.0";
 			case4:
 			if(*pPrikaziGrafik) tempGrafik = "FORMAT: PRIKAZUJE";
-			else tempGrafik = "FORMAT: NEPRIKAZUJE";
-			int odabirPrikaziGrafik = selekcijaLogika(GRAFIK, 2, lokacija, tempGrafik);
+			else tempGrafik = "FORMAT: NE PRIKAZUJE";
+			int odabirPrikaziGrafik = selekcijaLogika(GRAFIK, 2, LOKACIJA, tempGrafik, printajNULL);
 			if(odabirPrikaziGrafik == -1) goto ulaz;
 			if(odabirPrikaziGrafik == 1) *pPrikaziGrafik = true;
 			else *pPrikaziGrafik = false;
 			goto case4;
 			break;
+		}
+		case 5:
+		{
+			char const* tempReset = "VRACA SVE POSTAVKE NA TVORNICKE. DA LI STE SIGURNI?";
+			LOKACIJA = "1.6.5.0";
+			int reset = selekcijaLogika(RESET, 2, LOKACIJA, tempReset, printajNULL);
+			if(reset == 1)
+			{
+				*pBojaReal = 9;
+				*pTipSelekcije = true;
+				*pTipFormatDatuma = true;
+				*pPrikaziGrafik = true;
+				break;
+			}
+			else
+				goto ulaz;
 		}
 		default:
 		{
@@ -398,3 +377,4 @@ void opcijePromjena()
 		}
 	}
 }
+
