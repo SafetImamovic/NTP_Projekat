@@ -13,12 +13,60 @@
 #include "Includes/grafici.h"
 #include <string>
 #include <ctime>
+#include <map>
 using namespace std;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 
 struct tm;
 tm noviLokal;
+
+
+void tabelaPrint(vector<map<string, string>>& KorisniciData, vector<string>& keys) {
+    int KorisniciData_size = KorisniciData.size();
+    int column_count = keys.size();
+    int* col_sizes = new int[column_count];
+    for (int i = 0; i < column_count; i++) {
+        col_sizes[i] = keys.at(i).length();
+        for (int j = 0; j < KorisniciData_size; j++) {
+            if (col_sizes[i] < KorisniciData[j][keys.at(i)].length()) {
+                col_sizes[i] = KorisniciData[j][keys.at(i)].length();
+            }
+        }
+    }
+
+    for (int i = 0; i < column_count; i++) {
+        cout << setw(col_sizes[i]) << left << keys.at(i) << "|";
+    }
+    cout << endl;
+
+    for (int i = 0; i < KorisniciData_size; i++) {
+        for (int j = 0; j < column_count; j++) {
+            cout << setw(col_sizes[j]) << setfill('-') << "" << setfill(' ') << "|";
+        }
+        cout << endl;
+        for (int j = 0; j < column_count; j++) {
+            cout << setw(col_sizes[j]) << left << KorisniciData[i][keys.at(j)]  << "|";
+        }
+        cout << endl;
+    }
+}
+
+vector<string> tokens(string s, string delimiter) {
+    vector<string> v;
+    size_t pos = 0;
+    string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        v.push_back(token);
+        s.erase(0, pos + delimiter.length());
+    }
+    v.push_back(s);
+    return v;
+}
+
+
+
 
 struct POSTAVKE
 {
@@ -1360,7 +1408,8 @@ void prikaziKorisnike()
 				cout << "\nBroj Telefona: ";
 				if(Korisnici[i].BrojTelefona[0] != NULL)	cout << Korisnici[i].BrojTelefona;
 				else										cout << "N/A";
-				cout << endl << endl << endl;
+				
+			cout<<endl << endl<< endl;
 			}
 			cout << "NAZAD [ESC]";
 
@@ -1370,6 +1419,44 @@ void prikaziKorisnike()
 		}
 	}
 	izlaz:{}
+}
+
+void printajTabelu(){
+	system("CLS");
+	
+	cout<<endl;
+	
+	map<string, string> myMap;
+    vector<map<string, string>> KorisniciData;
+    string text;
+    ifstream read;
+    read.open("KorisniciData.csv");
+    
+odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+
+    getline(read, text);
+    vector<string> keys = tokens(text, ",");
+    vector<string> row;
+    
+    while (getline(read, text)) {
+        row = tokens(text, ",");
+        myMap.clear();
+        for (int i = 0; i < keys.size(); i++) {
+            myMap.insert(pair<string, string>(keys.at(i), row[i]));
+        }
+        KorisniciData.push_back(myMap);
+    }
+
+    tabelaPrint(KorisniciData, keys);
+    vratiBoju();
+    
+    cout<< endl << endl;
+    
+    cout << "NAZAD [ESC]";
+
+			char key= _getch();
+			if(key == 27){system("CLS");}
+    
 }
 
 int main()
@@ -1439,6 +1526,7 @@ int main()
 			}
 			case 4:
 			{
+				printajTabelu();
 				break;
 			}
 			case 5:
@@ -1473,7 +1561,7 @@ int meni(int brojOpcija)
 	POSTAVKE[0] = "Unos Korisnika";
 	POSTAVKE[1] = "Pregled Korisnika";
 	POSTAVKE[2] = "Opcija 3";
-	POSTAVKE[3] = "Opcija 4";
+	POSTAVKE[3] = "Tabelarni Prikaz";
 	POSTAVKE[4] = "Opcija 5";
 	POSTAVKE[5] = "Postavke";
 	POSTAVKE[6] = "EXIT";	
