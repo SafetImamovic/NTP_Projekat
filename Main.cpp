@@ -103,6 +103,13 @@ ifstream* pInPostavkepostavkeFile = &inPostavkepostavkeFile;
 ofstream postavkeFile;
 ofstream* pPostavkeFile = &postavkeFile;
 
+fstream checkKorisniciFile;
+ifstream inKorisniciFile;
+ifstream* pInKorisniciFile = &inKorisniciFile;
+ofstream korisniciFile;
+ofstream* pKorisniciFile = &korisniciFile;
+
+
 void printajNaslov();
 void teg();
 
@@ -117,6 +124,67 @@ void parsePOSTAVKE()
 	getline(*pInPostavkepostavkeFile, line, ','); pGlobalPOSTAVKE->tipSelekcije = atoi(line.c_str()); pTempGlobalnePOSTAVKE->tipSelekcije = atoi(line.c_str()); line = "";
 	getline(*pInPostavkepostavkeFile, line, ','); pGlobalPOSTAVKE->tipFormatDatuma = atoi(line.c_str()); pTempGlobalnePOSTAVKE->tipFormatDatuma = atoi(line.c_str()); line = "";
 	getline(*pInPostavkepostavkeFile, line, ','); pGlobalPOSTAVKE->prikaziGrafik = atoi(line.c_str()); pTempGlobalnePOSTAVKE->prikaziGrafik = atoi(line.c_str()); line = "";
+}
+
+
+
+void parseKORISNICI()
+{
+	KORISNIK tempKorisnik;
+	
+	string header;
+	getline(*pInKorisniciFile, header);
+	
+	string line;
+	while(getline(*pInKorisniciFile, line))
+	{
+		string ID, d, mj, g, h, m, s, ime, prezime, spol, dan, mje, god, adresa, brojtel;
+		string tempString, discard;
+		
+		stringstream inputString(line);
+		getline(inputString, discard, ',');
+		getline(inputString, ID, ',');
+		
+		tempKorisnik.ID = atoi(ID.c_str());
+		
+		getline(inputString, d, ','); getline(inputString, mj, ','); getline(inputString, g, ',');
+		getline(inputString, h, ','); getline(inputString, m, ','); getline(inputString, s, ',');
+		
+		tempKorisnik.VrijemeUclanjivanja.tm_mday = atoi(d.c_str());
+		tempKorisnik.VrijemeUclanjivanja.tm_mon = atoi(mj.c_str()) - 1;
+		tempKorisnik.VrijemeUclanjivanja.tm_year = atoi(g.c_str()) - 1900;
+		tempKorisnik.VrijemeUclanjivanja.tm_hour = atoi(h.c_str());
+		tempKorisnik.VrijemeUclanjivanja.tm_min = atoi(m.c_str());
+		tempKorisnik.VrijemeUclanjivanja.tm_sec = atoi(s.c_str());
+		
+		getline(inputString, ime, ',');
+		getline(inputString, prezime, ',');
+		getline(inputString, spol, ',');
+		getline(inputString, dan, ',');
+		getline(inputString, mje, ',');
+		getline(inputString, god, ',');
+		getline(inputString, adresa, ',');
+		getline(inputString, brojtel, ',');
+		
+		strcpy(tempKorisnik.Ime, ime.c_str());
+		strcpy(tempKorisnik.Prezime, prezime.c_str());
+		strcpy(tempKorisnik.Spol, spol.c_str());
+		tempKorisnik.Dan = dan;
+		tempKorisnik.Mje = mje;
+		tempKorisnik.God = god;
+		strcpy(tempKorisnik.AdresaStanovanja, adresa.c_str());
+		strcpy(tempKorisnik.BrojTelefona, brojtel.c_str());
+		
+		Korisnici.push_back(tempKorisnik);
+		line = "";
+	}
+	
+}
+
+void obrisiKorisnika()
+{
+	int velicina = Korisnici.size();
+	
 }
 
 int selekcijaLogika(char const** OPCIJE, int brojOpcija, char const*& LOKACIJA, char const* naslov, pFunkcija pGrafik)
@@ -750,6 +818,38 @@ unosKorisnika(pFunkcija pGrafik)
 					tempKorisnik.VrijemeUclanjivanja = *localtime(&sad);
 					
 					Korisnici.push_back(tempKorisnik);
+					pKorisniciFile->open("KorisniciData.csv", ios::app);
+					
+					//	struct KORISNIK
+					//	{
+					//		int ID;
+					//		tm VrijemeUclanjivanja;
+					//		char Ime[20];
+					//		char Prezime[30];
+					//		char Spol[20];
+					//		string Dan, Mje, God;
+					//		string DatumRodjenja;
+					//		int Dob;
+					//		char AdresaStanovanja[40];
+					//		char BrojTelefona[20];
+					//	};
+					
+					*pKorisniciFile << " " << "," << tempKorisnik.ID << ","
+									<< tempKorisnik.VrijemeUclanjivanja.tm_mday << ","
+									<< tempKorisnik.VrijemeUclanjivanja.tm_mon + 1<< ","
+									<< tempKorisnik.VrijemeUclanjivanja.tm_year + 1900<< ","
+									<< tempKorisnik.VrijemeUclanjivanja.tm_hour << ","
+									<< tempKorisnik.VrijemeUclanjivanja.tm_min << ","
+									<< tempKorisnik.VrijemeUclanjivanja.tm_sec << ","
+									<< tempKorisnik.Ime << ","
+									<< tempKorisnik.Prezime << ","
+									<< tempKorisnik.Spol << ","
+									<< tempKorisnik.Dan << ","
+									<< tempKorisnik.Mje << ","
+									<< tempKorisnik.God << ","
+									<< tempKorisnik.AdresaStanovanja << ","
+									<< tempKorisnik.BrojTelefona << endl;
+					pKorisniciFile->close();
 					break;
 				}
 				
@@ -841,6 +941,7 @@ void prikaziKorisnike()
 			time_t sad;
 			sad = time(NULL); //uzme vrijeme od OS
 			noviLokal = *localtime(&sad);
+			
 			string datum = "", god = "";
 			system("CLS");
 			cout << "Pregled Korisnika: \n\n";
@@ -870,7 +971,7 @@ void prikaziKorisnike()
 				god = Korisnici[i].God;
 				
 				if(god != "")
-					Korisnici[i].Dob = noviLokal.tm_year + 1900 - atoi(god.c_str());
+				Korisnici[i].Dob = noviLokal.tm_year + 1900 - atoi(god.c_str());
 				else
 					Korisnici[i].Dob = NULL;
 				
@@ -945,6 +1046,17 @@ int main()
 	}
 	else
 		parsePOSTAVKE();
+		
+	checkKorisniciFile.open("KorisniciData.csv");
+	inKorisniciFile.open("KorisniciData.csv");
+	korisniciFile.open("KorisniciData.csv", ios::app);
+
+	if(!(checkKorisniciFile.good()))
+	{
+		*pKorisniciFile << "Korisnici,ID,D.uc.,Mj.uc.,G.uc.,H.uc.,M.uc.,S.uc.,Ime,Prezime,Spol,D.rod.,Mj.rod.,G.rod.,Adresa st.,Broj tel." << endl;
+	}
+	else
+		parseKORISNICI();
 	
 	int brojOpcija = 7;
 	int odabir;
@@ -955,6 +1067,7 @@ int main()
 		{
 			case 1:
 			{
+				pKorisniciFile->close();
 				LOKACIJA = "1.1.0.0";
 				char const* UNOS[2];
 				UNOS[0] = "Classic";
@@ -968,6 +1081,7 @@ int main()
 					unosKorisnika(printajTeg);
 				else if(choice == -1)
 				{}
+				pKorisniciFile->open("KorisniciData.csv", ios::app);
 				break;
 			}
 			case 2:
