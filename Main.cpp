@@ -336,6 +336,363 @@ void sortAlpha()
 	}
 }
 
+void search(string &termin, string &tempTermin)
+{
+	system("CLS");
+	cout << "Pretraga: " << termin << endl;
+	cout << "----------------------------------------" << endl;
+	string ime, prezime, spol, adresa;
+	bool imaMatch = false;
+	string godRod;
+	vector<KORISNIK> KorisniciLower;
+	for(int i = 0; i < Korisnici.size(); i++)
+	{
+		
+		time_t sad;
+					
+		sad = time(NULL); //uzme vrijeme od OS
+		noviLokal = *localtime(&sad);
+		
+		godRod = Korisnici[i].God;
+					
+		if(godRod != "")
+			Korisnici[i].Dob = noviLokal.tm_year + 1900 - atoi(godRod.c_str());
+		else
+			Korisnici[i].Dob = NULL;
+		
+		KorisniciLower.push_back(Korisnici[i]);
+		
+		ime = CharArrToString(KorisniciLower[i].Ime);
+		prezime = CharArrToString(KorisniciLower[i].Prezime);
+		spol = CharArrToString(KorisniciLower[i].Spol);
+		adresa = CharArrToString(KorisniciLower[i].AdresaStanovanja);
+		
+		for(int j = 0; j < ime.size(); j++)
+			KorisniciLower[i].Ime[j] = tolower(KorisniciLower[i].Ime[j]);
+			
+		for(int j = 0; j < prezime.size(); j++)
+			KorisniciLower[i].Prezime[j] = tolower(KorisniciLower[i].Prezime[j]);
+			
+		for(int j = 0; j < spol.size(); j++)
+			KorisniciLower[i].Spol[j] = tolower(KorisniciLower[i].Spol[j]);
+			
+		for(int j = 0; j < adresa.size(); j++)
+			KorisniciLower[i].AdresaStanovanja[j] = tolower(KorisniciLower[i].AdresaStanovanja[j]);
+	}
+
+	vector<size_t> Pozicija;
+	Pozicija.resize(16);
+	vector<size_t> PozicijaNew;
+	PozicijaNew.resize(16);
+
+	size_t position, position2, position3;
+	for(int i = 0; i < Korisnici.size(); i++)
+	{
+		cout << endl;
+		Pozicija[0] = to_string(KorisniciLower[i].ID).find(tempTermin);
+		Pozicija[1] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday).find(tempTermin);
+		Pozicija[2] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon + 1).find(tempTermin);
+		Pozicija[3] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_year + 1900).find(tempTermin);
+		Pozicija[4] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_hour).find(tempTermin);
+		Pozicija[5] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_min).find(tempTermin);
+		Pozicija[6] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_sec).find(tempTermin);
+		//size_t pos = CharArrToString(KorisniciLower[i].Ime).find(tempTermin);
+		Pozicija[7] = CharArrToString(KorisniciLower[i].Ime).find(tempTermin);
+		//size_t pos2 = CharArrToString(KorisniciLower[i].Prezime).find(tempTermin);
+		Pozicija[8] = CharArrToString(KorisniciLower[i].Prezime).find(tempTermin);
+		Pozicija[9] = CharArrToString(KorisniciLower[i].Spol).find(tempTermin);
+		Pozicija[10] = KorisniciLower[i].Dan.find(tempTermin);
+		Pozicija[11] = KorisniciLower[i].Mje.find(tempTermin);
+		Pozicija[12] = KorisniciLower[i].God.find(tempTermin);
+		Pozicija[13] = to_string(KorisniciLower[i].Dob).find(tempTermin);
+		Pozicija[14] = CharArrToString(KorisniciLower[i].AdresaStanovanja).find(tempTermin);
+		Pozicija[15] = CharArrToString(KorisniciLower[i].BrojTelefona).find(tempTermin);
+
+		for(int j = 0; j < 16; j++)
+		{
+			if(Pozicija[j] != string::npos)
+				PozicijaNew[j] = Pozicija[j];
+		}
+		
+		for(int j = 0; j < 16; j++)
+		{
+			if(Pozicija[j] != string::npos)
+				imaMatch = true;
+		}
+		
+		KorisniciLower[i].VrijemeUclanjivanja.tm_year += 1900;
+		KorisniciLower[i].VrijemeUclanjivanja.tm_mon += 1;
+		
+		if(Pozicija[0] != string::npos || Pozicija[1] != string::npos  || Pozicija[2] != string::npos || Pozicija[3] != string::npos || Pozicija[4] != string::npos ||
+		Pozicija[5] != string::npos || Pozicija[6] != string::npos || Pozicija[7] != string::npos || Pozicija[8] != string::npos || Pozicija[9] != string::npos ||
+		Pozicija[10] != string::npos || Pozicija[11] != string::npos || Pozicija[12] != string::npos || Pozicija[13] != string::npos || Pozicija[14] != string::npos ||
+		Pozicija[15] != string::npos)
+		{
+			cout << "ID: ";
+			if(to_string(KorisniciLower[i].ID).find(tempTermin) != string::npos)
+			{
+				for(int j = 0; j < PozicijaNew[0]; j++)												cout << to_string(KorisniciLower[i].ID)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				for(int j = PozicijaNew[0]; j < PozicijaNew[0] + termin.size(); j++)						cout << to_string(KorisniciLower[i].ID)[j];	vratiBoju();
+				for(int j = PozicijaNew[0] + termin.size(); j < to_string(KorisniciLower[i].ID).size(); j++)					cout << to_string(KorisniciLower[i].ID)[j];
+			}
+			else
+				cout << Korisnici[i].ID;
+			cout << endl;
+			cout << "Datum Uclanjivanja: ";
+			if(pGlobalPOSTAVKE->tipFormatDatuma)
+			{
+				if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[1]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[1]; j < PozicijaNew[1] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday)[j];	vratiBoju();
+					for(int j = PozicijaNew[1] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday)[j];
+				}
+				else
+					cout << KorisniciLower[i].VrijemeUclanjivanja.tm_mday;
+				cout << "/";
+				if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[2]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[2]; j < PozicijaNew[2] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon)[j];	vratiBoju();
+					for(int j = PozicijaNew[2] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon)[j];
+				}
+				else
+					cout << KorisniciLower[i].VrijemeUclanjivanja.tm_mon;
+			}
+			else
+			{
+				if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[2]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[2]; j < PozicijaNew[2] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon)[j];	vratiBoju();
+					for(int j = PozicijaNew[2] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon)[j];
+				}
+				else
+					cout << KorisniciLower[i].VrijemeUclanjivanja.tm_mon;
+				cout << "/";
+				if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[1]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[1]; j < PozicijaNew[1] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday)[j];	vratiBoju();
+					for(int j = PozicijaNew[1] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday)[j];
+				}
+				else
+					cout << KorisniciLower[i].VrijemeUclanjivanja.tm_mday;
+			}
+			cout << "/";
+			if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_year).find(tempTermin) != string::npos)
+			{
+				for(int j = 0; j < PozicijaNew[3]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_year)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				for(int j = PozicijaNew[3]; j < PozicijaNew[3] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_year)[j];	vratiBoju();
+				for(int j = PozicijaNew[3] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_year).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_year)[j];
+			}
+			else
+				cout << KorisniciLower[i].VrijemeUclanjivanja.tm_year;
+			cout << endl;
+			cout << "Vrijeme Uclanjivanja: ";
+			if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_hour).find(tempTermin) != string::npos)
+			{
+				for(int j = 0; j < PozicijaNew[4]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_hour)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				for(int j = PozicijaNew[4]; j < PozicijaNew[4] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_hour)[j];	vratiBoju();
+				for(int j = PozicijaNew[4] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_hour).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_hour)[j];
+			}
+			else
+				cout << KorisniciLower[i].VrijemeUclanjivanja.tm_hour;
+			cout << ":";
+			if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_min).find(tempTermin) != string::npos)
+			{
+				for(int j = 0; j < PozicijaNew[5]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_min)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				for(int j = PozicijaNew[5]; j < PozicijaNew[5] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_min)[j];	vratiBoju();
+				for(int j = PozicijaNew[5] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_min).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_min)[j];
+			}
+			else
+				cout << KorisniciLower[i].VrijemeUclanjivanja.tm_min;
+			cout << ":";
+			if(to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_sec).find(tempTermin) != string::npos)
+			{
+				for(int j = 0; j < PozicijaNew[6]; j++)												cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_sec)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				for(int j = PozicijaNew[6]; j < PozicijaNew[6] + termin.size(); j++)						cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_sec)[j];	vratiBoju();
+				for(int j = PozicijaNew[6] + termin.size(); j < to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_sec).size(); j++)					cout << to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_sec)[j];
+			}
+			else
+				cout << KorisniciLower[i].VrijemeUclanjivanja.tm_sec;
+			cout << endl;
+			cout << "Ime: ";
+			if(Korisnici[i].Ime[0] != '\0')
+			{
+				if(CharArrToString(KorisniciLower[i].Ime).find(tempTermin) != string::npos)
+				{
+		    		for(int j = 0; j < PozicijaNew[7]; j++)												cout << Korisnici[i].Ime[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[7]; j < PozicijaNew[7] + termin.size(); j++)							cout << Korisnici[i].Ime[j];	vratiBoju();
+					for(int j = PozicijaNew[7] + termin.size(); j < CharArrToString(KorisniciLower[i].Ime).size(); j++)		cout << Korisnici[i].Ime[j];
+				}
+				else
+					cout << Korisnici[i].Ime;
+			}
+			else
+				cout << "N/A";
+			cout << endl;			
+			cout << "Prezime: ";
+			if(Korisnici[i].Prezime[0] != '\0')
+			{
+				if(CharArrToString(KorisniciLower[i].Prezime).find(tempTermin) != string::npos)
+				{
+		    		for(int j = 0; j < PozicijaNew[8]; j++)												cout << Korisnici[i].Prezime[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[8]; j < PozicijaNew[8] + termin.size(); j++)						cout << Korisnici[i].Prezime[j];	vratiBoju();
+					for(int j = PozicijaNew[8] + termin.size(); j < CharArrToString(KorisniciLower[i].Prezime).size(); j++)	cout << Korisnici[i].Prezime[j];
+				}
+				else
+					cout << Korisnici[i].Prezime;
+			}
+			else
+				cout << "N/A";
+			cout << endl;
+			
+			cout << "Spol: ";
+			if(CharArrToString(KorisniciLower[i].Spol).find(tempTermin) != string::npos)
+			{
+	    		for(int j = 0; j < PozicijaNew[9]; j++)												cout << Korisnici[i].Spol[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				for(int j = PozicijaNew[9]; j < PozicijaNew[9] + termin.size(); j++)						cout << Korisnici[i].Spol[j];	vratiBoju();
+				for(int j = PozicijaNew[9] + termin.size(); j < CharArrToString(KorisniciLower[i].Spol).size(); j++)	cout << Korisnici[i].Spol[j];	cout;
+			}
+			else
+				cout << Korisnici[i].Spol;
+			cout << endl;
+			cout << "Datum Rodjenja: ";
+			if(pGlobalPOSTAVKE->tipFormatDatuma && KorisniciLower[i].Dan != "" && KorisniciLower[i].Mje != "" && KorisniciLower[i].God != "")
+			{
+				if((KorisniciLower[i].Dan).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[10]; j++)												cout << (KorisniciLower[i].Dan)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[10]; j < PozicijaNew[10] + termin.size(); j++)						cout << (KorisniciLower[i].Dan)[j];	vratiBoju();
+					for(int j = PozicijaNew[10] + termin.size(); j < (KorisniciLower[i].Dan).size(); j++)					cout << (KorisniciLower[i].Dan)[j];
+				}
+				else
+					cout << KorisniciLower[i].Dan;
+				cout << "/";
+				if((KorisniciLower[i].Mje).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[11]; j++)												cout << (KorisniciLower[i].Mje)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[11]; j < PozicijaNew[11] + termin.size(); j++)						cout << (KorisniciLower[i].Mje)[j];	vratiBoju();
+					for(int j = PozicijaNew[11] + termin.size(); j < (KorisniciLower[i].Mje).size(); j++)					cout << (KorisniciLower[i].Mje)[j];
+				}
+				else
+					cout << KorisniciLower[i].Mje;
+				cout << "/";
+			}
+			else if(pGlobalPOSTAVKE->tipFormatDatuma == false && KorisniciLower[i].Dan != "" && KorisniciLower[i].Mje != "" && KorisniciLower[i].God != "")
+			{
+				if((KorisniciLower[i].Mje).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[11]; j++)												cout << (KorisniciLower[i].Mje)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[11]; j < PozicijaNew[11] + termin.size(); j++)						cout << (KorisniciLower[i].Mje)[j];	vratiBoju();
+					for(int j = PozicijaNew[11] + termin.size(); j < (KorisniciLower[i].Mje).size(); j++)					cout << (KorisniciLower[i].Mje)[j];
+				}
+				else
+					cout << KorisniciLower[i].Mje;
+				cout << "/";
+				if((KorisniciLower[i].Dan).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[10]; j++)												cout << (KorisniciLower[i].Dan)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[10]; j < PozicijaNew[10] + termin.size(); j++)						cout << (KorisniciLower[i].Dan)[j];	vratiBoju();
+					for(int j = PozicijaNew[10] + termin.size(); j < (KorisniciLower[i].Dan).size(); j++)					cout << (KorisniciLower[i].Dan)[j];
+				}
+				else
+					cout << KorisniciLower[i].Dan;
+				cout << "/";
+			}
+			else
+				cout << "N/A";
+			
+			if((KorisniciLower[i].God).find(tempTermin) != string::npos)
+			{
+				for(int j = 0; j < PozicijaNew[12]; j++)												cout << (KorisniciLower[i].God)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				for(int j = PozicijaNew[12]; j < PozicijaNew[12] + termin.size(); j++)						cout << (KorisniciLower[i].God)[j];	vratiBoju();
+				for(int j = PozicijaNew[12] + termin.size(); j < (KorisniciLower[i].God).size(); j++)					cout << (KorisniciLower[i].God)[j];
+			}
+			else
+				cout << KorisniciLower[i].Mje;
+			cout << endl;
+			cout << "Starost: ";
+			if(Korisnici[i].Dob != NULL)
+			{
+				if(to_string(KorisniciLower[i].Dob).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[13]; j++)												cout << to_string(KorisniciLower[i].Dob)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[13]; j < PozicijaNew[13] + termin.size(); j++)						cout << to_string(KorisniciLower[i].Dob)[j];	vratiBoju();
+					for(int j = PozicijaNew[13] + termin.size(); j < to_string(KorisniciLower[i].Dob).size(); j++)					cout << to_string(KorisniciLower[i].Dob)[j];
+				}
+				else
+					cout << Korisnici[i].Dob;
+			}
+			else
+				cout << "N/A";
+			cout << endl;
+			cout << "Adresa Stanovanja: ";
+			if(Korisnici[i].AdresaStanovanja[0] != '\0')
+			{
+				if((CharArrToString(KorisniciLower[i].AdresaStanovanja)).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[14]; j++)												cout << CharArrToString(Korisnici[i].AdresaStanovanja)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[14]; j < PozicijaNew[14] + termin.size(); j++)						cout << CharArrToString(Korisnici[i].AdresaStanovanja)[j];	vratiBoju();
+					for(int j = PozicijaNew[14] + termin.size(); j < CharArrToString(KorisniciLower[i].AdresaStanovanja).size(); j++)					cout << CharArrToString(Korisnici[i].AdresaStanovanja)[j];
+				}
+				else
+					cout << Korisnici[i].AdresaStanovanja;
+			}
+			else
+				cout << "N/A";
+			cout << endl;
+			cout << "Broj Telefona: ";
+			if(Korisnici[i].BrojTelefona[0] != '\0')
+			{
+				if((CharArrToString(KorisniciLower[i].BrojTelefona)).find(tempTermin) != string::npos)
+				{
+					for(int j = 0; j < PozicijaNew[15]; j++)												cout << CharArrToString(KorisniciLower[i].BrojTelefona)[j];	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					for(int j = PozicijaNew[15]; j < PozicijaNew[15] + termin.size(); j++)						cout << CharArrToString(KorisniciLower[i].BrojTelefona)[j];	vratiBoju();
+					for(int j = PozicijaNew[15] + termin.size(); j < CharArrToString(KorisniciLower[i].BrojTelefona).size(); j++)					cout << CharArrToString(KorisniciLower[i].BrojTelefona)[j];
+				}
+				else
+					cout << Korisnici[i].BrojTelefona;	
+			}
+			else
+				cout << "N/A";
+			cout << endl << endl << "----------------------------------------" << endl;
+		}
+	}
+}
+
+void searchMain()
+{
+	string termin = "";
+	string tempTermin = "";
+	search(termin, tempTermin);
+	char key;
+	while(true)
+	{
+		key = _getch();
+		if(key == 27)
+			break;
+		else if(key == 8)
+		{
+			if(termin.size() > 0)
+			{
+				termin.pop_back();
+				tempTermin.pop_back();
+			}
+		}
+		else if(key == 13)
+		{
+		}
+		else
+		{
+			termin += key;
+			tempTermin += tolower(key);
+		}
+		search(termin, tempTermin);
+	}
+}
+
 unosKorisnikaClassic(pFunkcija pGrafik)
 {
 	int lokacija = 0;
@@ -820,20 +1177,6 @@ unosKorisnika(pFunkcija pGrafik)
 					Korisnici.push_back(tempKorisnik);
 					pKorisniciFile->open("KorisniciData.csv", ios::app);
 					
-					//	struct KORISNIK
-					//	{
-					//		int ID;
-					//		tm VrijemeUclanjivanja;
-					//		char Ime[20];
-					//		char Prezime[30];
-					//		char Spol[20];
-					//		string Dan, Mje, God;
-					//		string DatumRodjenja;
-					//		int Dob;
-					//		char AdresaStanovanja[40];
-					//		char BrojTelefona[20];
-					//	};
-					
 					*pKorisniciFile << " " << "," << tempKorisnik.ID << ","
 									<< tempKorisnik.VrijemeUclanjivanja.tm_mday << ","
 									<< tempKorisnik.VrijemeUclanjivanja.tm_mon + 1<< ","
@@ -1091,6 +1434,7 @@ int main()
 			}
 			case 3:
 			{
+				searchMain();
 				break;
 			}
 			case 4:
