@@ -21,53 +21,6 @@ HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 struct tm;
 tm noviLokal;
 
-
-void tabelaPrint(vector<map<string, string>>& KorisniciData, vector<string>& keys) {
-    int KorisniciData_size = KorisniciData.size();
-    int column_count = keys.size();
-    int* col_sizes = new int[column_count];
-    for (int i = 0; i < column_count; i++) {
-        col_sizes[i] = keys.at(i).length();
-        for (int j = 0; j < KorisniciData_size; j++) {
-            if (col_sizes[i] < KorisniciData[j][keys.at(i)].length()) {
-                col_sizes[i] = KorisniciData[j][keys.at(i)].length();
-            }
-        }
-    }
-
-    for (int i = 0; i < column_count; i++) {
-        cout << setw(col_sizes[i]) << left << keys.at(i) << "|";
-    }
-    cout << endl;
-
-    for (int i = 0; i < KorisniciData_size; i++) {
-        for (int j = 0; j < column_count; j++) {
-            cout << setw(col_sizes[j]) << setfill('-') << "" << setfill(' ') << "|";
-        }
-        cout << endl;
-        for (int j = 0; j < column_count; j++) {
-            cout << setw(col_sizes[j]) << left << KorisniciData[i][keys.at(j)]  << "|";
-        }
-        cout << endl;
-    }
-}
-
-vector<string> tokens(string s, string delimiter) {
-    vector<string> v;
-    size_t pos = 0;
-    string token;
-    while ((pos = s.find(delimiter)) != std::string::npos) {
-        token = s.substr(0, pos);
-        v.push_back(token);
-        s.erase(0, pos + delimiter.length());
-    }
-    v.push_back(s);
-    return v;
-}
-
-
-
-
 struct POSTAVKE
 {
 	int bojaReal = 9, boja;
@@ -88,6 +41,15 @@ struct KORISNIK
 	int Dob;
 	char AdresaStanovanja[40];
 	char BrojTelefona[20];
+};
+
+struct PAKET
+{
+	string ImePaketa;
+	int BrojSesija;
+	int CijenaPoSesiji;
+	int UkupnaCijena;
+	
 };
 
 vector<KORISNIK> Korisnici;
@@ -1421,7 +1383,51 @@ void prikaziKorisnike()
 	izlaz:{}
 }
 
-void printajTabelu(){
+
+void tabelaPrint(vector<map<string, string>>& KorisniciData, vector<string>& keys) {
+    int KorisniciData_size = KorisniciData.size();
+    int column_count = keys.size();
+    int* col_sizes = new int[column_count];
+    for (int i = 0; i < column_count; i++) {
+        col_sizes[i] = keys.at(i).length();
+        for (int j = 0; j < KorisniciData_size; j++) {
+            if (col_sizes[i] < KorisniciData[j][keys.at(i)].length()) {
+                col_sizes[i] = KorisniciData[j][keys.at(i)].length();
+            }
+        }
+    }
+odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+    for (int i = 0; i < column_count; i++) {
+        cout << setw(col_sizes[i]) << left << keys.at(i) << "|";
+    }
+    cout << endl;
+
+    for (int i = 0; i < KorisniciData_size; i++) {
+        for (int j = 0; j < column_count; j++) {
+            cout << setw(col_sizes[j]) << setfill('-') << "" << setfill(' ') << "|";
+        }
+        cout << endl;
+        for (int j = 0; j < column_count; j++) {
+            cout << setw(col_sizes[j]) << left << KorisniciData[i][keys.at(j)]  << "|";
+        }
+        cout << endl;
+    }
+}
+
+vector<string> tokens(string s, string delimiter) {
+    vector<string> v;
+    size_t pos = 0;
+    string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        v.push_back(token);
+        s.erase(0, pos + delimiter.length());
+    }
+    v.push_back(s);
+    return v;
+}
+
+void printajTabeluKorisnika(){
 	system("CLS");
 	
 	cout<<endl;
@@ -1458,6 +1464,7 @@ odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 			if(key == 27){system("CLS");}
     
 }
+
 
 int main()
 {
@@ -1526,7 +1533,7 @@ int main()
 			}
 			case 4:
 			{
-				printajTabelu();
+				printajTabeluKorisnika();
 				break;
 			}
 			case 5:
@@ -1560,9 +1567,9 @@ int meni(int brojOpcija)
 	char const* POSTAVKE[brojOpcija];
 	POSTAVKE[0] = "Unos Korisnika";
 	POSTAVKE[1] = "Pregled Korisnika";
-	POSTAVKE[2] = "Opcija 3";
+	POSTAVKE[2] = "Pretraga";
 	POSTAVKE[3] = "Tabelarni Prikaz";
-	POSTAVKE[4] = "Opcija 5";
+	POSTAVKE[4] = "Unos Paketa";
 	POSTAVKE[5] = "Postavke";
 	POSTAVKE[6] = "EXIT";	
 	LOKACIJA = "1.0.0.0";
