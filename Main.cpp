@@ -28,6 +28,20 @@ struct POSTAVKE
 	bool prikaziGrafik = true;
 };
 
+struct PAKETI
+{
+	float cijena;
+	string vrstaTreninga;
+	int sedmicnaFrekvencija;
+};
+
+struct DETALJI
+{
+	bool Placeno;
+	int brPlacenihMjeseci;
+	vector<PAKETI> PlaceniPaketi;
+};
+
 struct KORISNIK
 {
 	int ID;
@@ -40,6 +54,7 @@ struct KORISNIK
 	int Dob;
 	char AdresaStanovanja[40];
 	char BrojTelefona[20];
+	DETALJI Evidencija;
 };
 
 vector<KORISNIK> Korisnici;
@@ -49,6 +64,9 @@ POSTAVKE globalPOSTAVKE;
 POSTAVKE* pGlobalPOSTAVKE = &globalPOSTAVKE;
 POSTAVKE tempGlobalnePOSTAVKE;
 POSTAVKE* pTempGlobalnePOSTAVKE = &tempGlobalnePOSTAVKE;
+
+vector<PAKETI> Paketi;
+vector<PAKETI>* pPaketi = &Paketi;
 
 void odabranaBoja(int bojaReal){SetConsoleTextAttribute(h, bojaReal);}
 void vratiBoju(){SetConsoleTextAttribute(h, 15);}
@@ -69,10 +87,10 @@ bool* pSacuvano = &sacuvano;
 
 void unsaved(char const* lokacija)
 {
-	if((pGlobalPOSTAVKE->bojaReal != pTempGlobalnePOSTAVKE->bojaReal && lokacija == "1.6.1.0")
-	||(pGlobalPOSTAVKE->tipSelekcije != pTempGlobalnePOSTAVKE->tipSelekcije && lokacija == "1.6.2.0")
-	||(pGlobalPOSTAVKE->tipFormatDatuma != pTempGlobalnePOSTAVKE->tipFormatDatuma && lokacija == "1.6.3.0")
-	||(pGlobalPOSTAVKE->prikaziGrafik != pTempGlobalnePOSTAVKE->prikaziGrafik && lokacija == "1.6.4.0"))
+	if((pGlobalPOSTAVKE->bojaReal != pTempGlobalnePOSTAVKE->bojaReal && lokacija == "1.11.1.0")
+	||(pGlobalPOSTAVKE->tipSelekcije != pTempGlobalnePOSTAVKE->tipSelekcije && lokacija == "1.11.2.0")
+	||(pGlobalPOSTAVKE->tipFormatDatuma != pTempGlobalnePOSTAVKE->tipFormatDatuma && lokacija == "1.11.3.0")
+	||(pGlobalPOSTAVKE->prikaziGrafik != pTempGlobalnePOSTAVKE->prikaziGrafik && lokacija == "1.11.4.0"))
 	{
 		cout << "\n\tPromjenu Postavke\n\tTreba Sacuvati.\n\tINDIKATOR ";
 		if(pGlobalPOSTAVKE->bojaReal != 4)
@@ -84,10 +102,10 @@ void unsaved(char const* lokacija)
 		cout << "\n";
 		*pSacuvano = false;
 	}
-	else if((pGlobalPOSTAVKE->bojaReal == pTempGlobalnePOSTAVKE->bojaReal && lokacija == "1.6.1.0")
-	||(pGlobalPOSTAVKE->tipSelekcije == pTempGlobalnePOSTAVKE->tipSelekcije && lokacija == "1.6.2.0")
-	||(pGlobalPOSTAVKE->tipFormatDatuma == pTempGlobalnePOSTAVKE->tipFormatDatuma && lokacija == "1.6.3.0")
-	||(pGlobalPOSTAVKE->prikaziGrafik == pTempGlobalnePOSTAVKE->prikaziGrafik && lokacija == "1.6.4.0"))
+	else if((pGlobalPOSTAVKE->bojaReal == pTempGlobalnePOSTAVKE->bojaReal && lokacija == "1.11.1.0")
+	||(pGlobalPOSTAVKE->tipSelekcije == pTempGlobalnePOSTAVKE->tipSelekcije && lokacija == "1.11.2.0")
+	||(pGlobalPOSTAVKE->tipFormatDatuma == pTempGlobalnePOSTAVKE->tipFormatDatuma && lokacija == "1.11.3.0")
+	||(pGlobalPOSTAVKE->prikaziGrafik == pTempGlobalnePOSTAVKE->prikaziGrafik && lokacija == "1.11.4.0"))
 		*pSacuvano = true;
 }
 
@@ -181,12 +199,6 @@ void parseKORISNICI()
 	
 }
 
-void obrisiKorisnika()
-{
-	int velicina = Korisnici.size();
-	
-}
-
 int selekcijaLogika(char const** OPCIJE, int brojOpcija, char const*& LOKACIJA, char const* naslov, pFunkcija pGrafik)
 {
 	int odabir = 1;
@@ -206,8 +218,8 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, char const*& LOKACIJA, 
 			{
 				if(odabir != p+1){	cout << "\t      " << OPCIJE[p];	}	
 				else{	odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << "\t" << BAR << " " << OPCIJE[p];	}
-				if(LOKACIJA == "1.6.0.0" && *pSacuvano == false && p == 4 ||
-				LOKACIJA == "1.0.0.0" && *pSacuvano == false && p == 5)
+				if(LOKACIJA == "1.11.0.0" && *pSacuvano == false && p == 4 ||
+				LOKACIJA == "1.0.0.0" && *pSacuvano == false && p == 10)
 				{
 					if(pGlobalPOSTAVKE->bojaReal != 4)
 						odabranaBoja(4);
@@ -265,8 +277,8 @@ int selekcijaLogika(char const** OPCIJE, int brojOpcija, char const*& LOKACIJA, 
 			for(i = 0; i < brojOpcija; i++)
 			{
 				cout << "\t" << i + 1 << ". " << OPCIJE[i];
-				if(LOKACIJA == "1.6.0.0" && *pSacuvano == false && i == 4
-				|| LOKACIJA == "1.0.0.0" && *pSacuvano == false && i == 5)
+				if(LOKACIJA == "1.11.0.0" && *pSacuvano == false && i == 4
+				|| LOKACIJA == "1.0.0.0" && *pSacuvano == false && i == 10)
 				{
 					if(pGlobalPOSTAVKE->bojaReal != 4)
 						odabranaBoja(4);
@@ -336,10 +348,32 @@ void sortAlpha()
 	}
 }
 
-void search(string &termin, string &tempTermin)
+vector<KORISNIK>* search(string &termin, string &tempTermin)
 {
+	vector<KORISNIK>* ptr = new vector<KORISNIK>();
+	time_t sad;
+	sad = time(NULL); //uzme vrijeme od OS
+	noviLokal = *localtime(&sad);
+	
+	string datum = "", god = "";
 	system("CLS");
-	cout << "Pretraga: " << termin << endl;
+	cout << "NAZAD "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+	cout << "[ESC] "; vratiBoju();
+	
+	cout << "\nTrenutni Datum: ";
+	odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+	if(pGlobalPOSTAVKE->tipFormatDatuma)	{cout << noviLokal.tm_mday << "/" << noviLokal.tm_mon + 1 << "/" << noviLokal.tm_year + 1900;}
+	else	{cout << noviLokal.tm_mon + 1 << "/" << noviLokal.tm_mday << "/" << noviLokal.tm_year + 1900;}
+	vratiBoju();
+	cout << "\nTrenutno Vrijeme: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+	cout << noviLokal.tm_hour << ":" << noviLokal.tm_min << ":" << noviLokal.tm_sec; vratiBoju();
+	cout << "\nPritisnite "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+	cout << "[ENTER]";	vratiBoju();
+	cout << " da "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+	cout << "Osvjezite Vrijeme";vratiBoju();
+	cout << "\n\nPregled Korisnika:"; 	 
+	cout << "\n\nPretraga: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+	cout << termin << endl; vratiBoju();
 	cout << "----------------------------------------" << endl;
 	string ime, prezime, spol, adresa;
 	bool imaMatch = false;
@@ -347,7 +381,6 @@ void search(string &termin, string &tempTermin)
 	vector<KORISNIK> KorisniciLower;
 	for(int i = 0; i < Korisnici.size(); i++)
 	{
-		
 		time_t sad;
 					
 		sad = time(NULL); //uzme vrijeme od OS
@@ -384,11 +417,10 @@ void search(string &termin, string &tempTermin)
 	Pozicija.resize(16);
 	vector<size_t> PozicijaNew;
 	PozicijaNew.resize(16);
-
+	cout << endl;
 	size_t position, position2, position3;
 	for(int i = 0; i < Korisnici.size(); i++)
 	{
-		cout << endl;
 		Pozicija[0] = to_string(KorisniciLower[i].ID).find(tempTermin);
 		Pozicija[1] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mday).find(tempTermin);
 		Pozicija[2] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_mon + 1).find(tempTermin);
@@ -396,9 +428,7 @@ void search(string &termin, string &tempTermin)
 		Pozicija[4] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_hour).find(tempTermin);
 		Pozicija[5] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_min).find(tempTermin);
 		Pozicija[6] = to_string(KorisniciLower[i].VrijemeUclanjivanja.tm_sec).find(tempTermin);
-		//size_t pos = CharArrToString(KorisniciLower[i].Ime).find(tempTermin);
 		Pozicija[7] = CharArrToString(KorisniciLower[i].Ime).find(tempTermin);
-		//size_t pos2 = CharArrToString(KorisniciLower[i].Prezime).find(tempTermin);
 		Pozicija[8] = CharArrToString(KorisniciLower[i].Prezime).find(tempTermin);
 		Pozicija[9] = CharArrToString(KorisniciLower[i].Spol).find(tempTermin);
 		Pozicija[10] = KorisniciLower[i].Dan.find(tempTermin);
@@ -428,6 +458,7 @@ void search(string &termin, string &tempTermin)
 		Pozicija[10] != string::npos || Pozicija[11] != string::npos || Pozicija[12] != string::npos || Pozicija[13] != string::npos || Pozicija[14] != string::npos ||
 		Pozicija[15] != string::npos)
 		{
+			ptr->push_back(Korisnici[i]);
 			cout << "ID: ";
 			if(to_string(KorisniciLower[i].ID).find(tempTermin) != string::npos)
 			{
@@ -660,19 +691,136 @@ void search(string &termin, string &tempTermin)
 			cout << endl << endl << "----------------------------------------" << endl;
 		}
 	}
+	return ptr;
 }
 
-void searchMain()
+int odabirKorisnika(vector<KORISNIK>* pFiltrirano)
 {
+	system("CLS");
+	char key;
+	string termin = "";
+	size_t velicina = pFiltrirano->size();
+	bool pronadjen = true;
+	if(velicina == 1)
+	{
+		return (pFiltrirano)->at(0).ID;
+	}
+	else if(velicina == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		while(true)
+		{
+			system("CLS");
+			cout << "Unesite Trazeni ID Korisnika:\n\n";
+			for(int i = 0; i < velicina; i++)
+			{
+				odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				cout << BAR << "\tID: " << (pFiltrirano)->at(i).ID << "\n";
+				vratiBoju();
+				
+				cout << "\tDatum Uclanjivanja: ";
+				
+				if(pGlobalPOSTAVKE->tipFormatDatuma)
+					cout << (pFiltrirano)->at(i).VrijemeUclanjivanja.tm_mday << "/" << (pFiltrirano)->at(i).VrijemeUclanjivanja.tm_mon + 1;
+				else
+					cout << (pFiltrirano)->at(i).VrijemeUclanjivanja.tm_mon + 1 << "/" << (pFiltrirano)->at(i).VrijemeUclanjivanja.tm_mday;
+				cout << "/";
+				cout << (pFiltrirano)->at(i).VrijemeUclanjivanja.tm_year + 1900 << "\n";
+				cout << "\tIme: ";
+				if((pFiltrirano)->at(i).Ime[0] != '\0')
+					cout << (pFiltrirano)->at(i).Ime << "\n";
+				else
+					cout << "N/A\n";
+				cout << "\tPrezime: ";
+				if((pFiltrirano)->at(i).Prezime[0] != '\0')
+					cout << (pFiltrirano)->at(i).Prezime << "\n";
+				else
+					cout << "N/A\n";
+				cout << "\tSpol: ";
+				if((pFiltrirano)->at(i).Spol[0] != '\0')
+					cout << (pFiltrirano)->at(i).Spol << "\n";
+				else
+					cout << "N/A\n";
+				
+				cout << "\tDatum Rodjenja: ";
+				if((pFiltrirano)->at(i).Dan != "" || (pFiltrirano)->at(i).Mje != "" || (pFiltrirano)->at(i).God != "")
+				{
+					if(pGlobalPOSTAVKE->tipFormatDatuma)
+						cout << (pFiltrirano)->at(i).Dan << "/" << (pFiltrirano)->at(i).Mje;
+					else
+						cout << (pFiltrirano)->at(i).Mje << "/" << (pFiltrirano)->at(i).Dan;
+					cout << "/";
+					cout << (pFiltrirano)->at(i).God << "\n";
+				}
+				else
+					cout << "N/A\n";
+				cout << "\tAdresa Stanovanja: ";
+				if((pFiltrirano)->at(i).AdresaStanovanja[0] != '\0')
+					cout << (pFiltrirano)->at(i).AdresaStanovanja << "\n";
+				else
+					cout << "N/A\n";
+				cout << "\tBroj Telefona: ";
+				if((pFiltrirano)->at(i).BrojTelefona[0] != '\0')
+					cout << (pFiltrirano)->at(i).BrojTelefona << "\n";
+				else
+					cout << "N/A\n";
+	
+				cout << "\n";
+			}
+			cout << "\tUnos: " << termin;
+			if(pronadjen == false)
+				cout << "\n\n\tTrazeni ID Nije Pronadjen";
+			key = _getch();
+			if(key == 27)
+				return 0;
+			else if(key == 8)
+			{
+				if(termin.size() > 0)
+				{
+					termin.pop_back();
+				}
+			}
+			else if(key == 13)
+			{
+				for(int j = 0; j < velicina; j++)
+				{
+					if(pFiltrirano->at(j).ID == atoi(termin.c_str()))
+					{
+						return pFiltrirano->at(j).ID;
+						break;
+					}
+					else
+					{
+						pronadjen = false;
+						continue;
+					}
+				}
+			}
+			else
+			{
+				termin += key;
+			}
+		}
+	}
+}
+
+int searchMain(vector<KORISNIK>* pFiltrirano)
+{
+	ulaz:
+	int odabir;
+	size_t FilterVelicina;
 	string termin = "";
 	string tempTermin = "";
 	search(termin, tempTermin);
-	char key;
+	char key, x;
 	while(true)
 	{
 		key = _getch();
 		if(key == 27)
-			break;
+			goto izlaz;
 		else if(key == 8)
 		{
 			if(termin.size() > 0)
@@ -683,6 +831,14 @@ void searchMain()
 		}
 		else if(key == 13)
 		{
+			system("CLS");
+			pFiltrirano = search(termin, tempTermin);
+			FilterVelicina = pFiltrirano->size();
+			//cout << FilterVelicina;
+//			x = _getch();
+//			if(x == 27)
+			
+			break;
 		}
 		else
 		{
@@ -691,6 +847,12 @@ void searchMain()
 		}
 		search(termin, tempTermin);
 	}
+	odabir = odabirKorisnika(pFiltrirano);
+	if(odabir == 0)
+		goto ulaz;
+	else
+		return odabir;
+	izlaz:{}
 }
 
 unosKorisnikaClassic(pFunkcija pGrafik)
@@ -827,6 +989,11 @@ unosKorisnikaClassic(pFunkcija pGrafik)
 	}
 	Korisnici.push_back(tempKorisnik);
 }
+
+//void UplataClanarina()
+//{
+//	
+//}
 
 unosKorisnika(pFunkcija pGrafik)
 {
@@ -1272,6 +1439,18 @@ unosKorisnika(pFunkcija pGrafik)
 	izlaz:{}
 }
 
+void obrisiKorisnika(vector<KORISNIK>* pFiltrirano)
+{
+	int velicina = Korisnici.size();
+	LOKACIJA = "1.4.0.0";
+	system("CLS");
+	int id = searchMain(pFiltrirano); //dobavlja trazeni ID Korisnika
+	cout << "\n\n";
+	cout << id << endl;
+	cout << Korisnici[id - 1].Ime;
+	
+}
+
 void prikaziKorisnike()
 {
 	char key;
@@ -1290,14 +1469,8 @@ void prikaziKorisnike()
 			cout << "Pregled Korisnika: \n\n";
 			cout << "Trenutni Datum: ";
 			odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-			if(pGlobalPOSTAVKE->tipFormatDatuma)
-			{
-				cout << noviLokal.tm_mday << "/" << noviLokal.tm_mon + 1 << "/" << noviLokal.tm_year + 1900;
-			}
-			else
-			{
-				cout << noviLokal.tm_mon + 1 << "/" << noviLokal.tm_mday << "/" << noviLokal.tm_year + 1900;
-			}
+			if(pGlobalPOSTAVKE->tipFormatDatuma)	{cout << noviLokal.tm_mday << "/" << noviLokal.tm_mon + 1 << "/" << noviLokal.tm_year + 1900;}
+			else	{cout << noviLokal.tm_mon + 1 << "/" << noviLokal.tm_mday << "/" << noviLokal.tm_year + 1900;}
 			vratiBoju();
 			cout << "\nTrenutno Vrijeme: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 			cout << noviLokal.tm_hour << ":" << noviLokal.tm_min << ":" << noviLokal.tm_sec; vratiBoju();
@@ -1305,8 +1478,7 @@ void prikaziKorisnike()
 			cout << "[ENTER]";	vratiBoju();
 			cout << " da "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 			cout << "Osvjezite Vrijeme";	vratiBoju();
-				cout << "\n\n";
-			//_sleep(500);
+			cout << "\n\n";
 			
 			int velicina = pKorisnici->size();
 			for(int i = 0; i < velicina; i++)
@@ -1314,20 +1486,14 @@ void prikaziKorisnike()
 				god = Korisnici[i].God;
 				
 				if(god != "")
-				Korisnici[i].Dob = noviLokal.tm_year + 1900 - atoi(god.c_str());
+					Korisnici[i].Dob = noviLokal.tm_year + 1900 - atoi(god.c_str());
 				else
 					Korisnici[i].Dob = NULL;
 				
 				cout << "ID: " << Korisnici[i].ID;
 				cout << "\nDatum Uclanjivanja: ";
-				if(pGlobalPOSTAVKE->tipFormatDatuma)
-				{
-					cout << Korisnici[i].VrijemeUclanjivanja.tm_mday << "/" << Korisnici[i].VrijemeUclanjivanja.tm_mon + 1 << "/" << Korisnici[i].VrijemeUclanjivanja.tm_year + 1900;
-				}
-				else
-				{
-					cout << Korisnici[i].VrijemeUclanjivanja.tm_mon + 1 << "/" << Korisnici[i].VrijemeUclanjivanja.tm_mday << "/" << Korisnici[i].VrijemeUclanjivanja.tm_year + 1900;
-				}
+				if(pGlobalPOSTAVKE->tipFormatDatuma)	{cout << Korisnici[i].VrijemeUclanjivanja.tm_mday << "/" << Korisnici[i].VrijemeUclanjivanja.tm_mon + 1 << "/" << Korisnici[i].VrijemeUclanjivanja.tm_year + 1900;}
+				else	{cout << Korisnici[i].VrijemeUclanjivanja.tm_mon + 1 << "/" << Korisnici[i].VrijemeUclanjivanja.tm_mday << "/" << Korisnici[i].VrijemeUclanjivanja.tm_year + 1900;}
 				cout << "\nVrijeme Uclanjivanja: ";
 				cout << Korisnici[i].VrijemeUclanjivanja.tm_hour << ":" << Korisnici[i].VrijemeUclanjivanja.tm_min << ":" << Korisnici[i].VrijemeUclanjivanja.tm_sec;
 				cout << "\nIme: ";
@@ -1340,14 +1506,8 @@ void prikaziKorisnike()
 				cout << "\nDatum Rodjenja: ";
 				if(Korisnici[i].Dan != "" || Korisnici[i].Mje != "" || Korisnici[i].God != "")
 				{
-					if(pGlobalPOSTAVKE->tipFormatDatuma)
-					{
-						cout << Korisnici[i].Dan << "/" << Korisnici[i].Mje << "/" << Korisnici[i].God;
-					}
-					else
-					{
-						cout << Korisnici[i].Mje << "/" << Korisnici[i].Dan << "/" << Korisnici[i].God;
-					}
+					if(pGlobalPOSTAVKE->tipFormatDatuma)	{cout << Korisnici[i].Dan << "/" << Korisnici[i].Mje << "/" << Korisnici[i].God;}
+					else	{cout << Korisnici[i].Mje << "/" << Korisnici[i].Dan << "/" << Korisnici[i].God;}
 				}
 				else	cout << "N/A";
 				
@@ -1363,13 +1523,48 @@ void prikaziKorisnike()
 				cout << endl << endl << endl;
 			}
 			cout << "NAZAD [ESC]";
-
 			key = _getch();
 			if(key == 27){goto izlaz;}
-
 		}
 	}
 	izlaz:{}
+}
+
+void OsobniPaketi() //trening paketi koje vlasnik zadaje a takodjer imaju i unaprijed definisani paketi koje korisnik moze da importuje
+{
+	pPaketi;
+	LOKACIJA = "1.6.0.0";
+	char const* PAKET[4];
+	PAKET[0] = "Importuj Tvornicke Pakete";
+	PAKET[1] = "Napravi Novi Paket";
+	PAKET[2] = "Edituj Paket";
+	PAKET[3] = "Obrisi Paket";
+	PAKET[4] = "Sacuvaj Promjene";
+	
+	selekcijaLogika(PAKET, 5, LOKACIJA, "PAKETI:", printajNULL);
+}
+
+void UplataClanarinaMain(vector<KORISNIK>* pFiltrirano)
+{
+	LOKACIJA = "1.5.0.0";
+	system("CLS");
+	int id = searchMain(pFiltrirano); //dobavlja trazeni ID Korisnika
+	cout << "\n\n";
+	cout << id << endl;
+	cout << Korisnici[id - 1].Ime;
+	
+	time_t sad;
+	sad = time(NULL); //uzme vrijeme od OS
+	time_t korisnik = mktime(&(Korisnici[0].VrijemeUclanjivanja)); //pretvara tm struct u time_t format radi lakseg poredjenja vremena i trazenja razlike
+	noviLokal = *localtime(&sad); // pridodaje time_t sadasnje vrijeme u struct NoviLokal, tako da mozemo imati pristup vremenskim jedinicama zasebno kao sek, min, sat itd.
+	cout << ctime(&korisnik); //Prikazuje vrijeme uclanjivanja korisnika
+	cout << ctime(&sad); // Prikazuje sadasnje vrijeme
+	
+	
+	
+	cout << "\n\nNAZAD [ESC]";
+	char key = _getch();
+	if(key == 27){system("CLS");}
 }
 
 int main()
@@ -1400,8 +1595,10 @@ int main()
 	}
 	else
 		parseKORISNICI();
-	
-	int brojOpcija = 7;
+		
+		
+	vector<KORISNIK>* pFiltrirano;
+	int brojOpcija = 12;
 	int odabir;
 	do
 	{
@@ -1434,22 +1631,45 @@ int main()
 			}
 			case 3:
 			{
-				searchMain();
+				searchMain(pFiltrirano);
 				break;
 			}
 			case 4:
 			{
+				obrisiKorisnika(pFiltrirano);
 				break;
 			}
 			case 5:
 			{
+				UplataClanarinaMain(pFiltrirano);
 				break;
 			}
 			case 6:
 			{
+				
+			}
+			case 7:
+			{
+				break;
+			}
+			case 8:
+			{
+				break;
+			}
+			case 9:
+			{
+				break;
+			}
+			case 10:
+			{
+				break;
+			}
+			case 11:
+			{
 				pPostavkeFile->close();
 				POSTAVKEPromjena();
 				pPostavkeFile->open("PostavkeData.csv", ios::app);
+				break;
 				break;
 			}
 			default:
@@ -1463,6 +1683,7 @@ int main()
 	checkPostavkepostavkeFile.close();
 	pInPostavkepostavkeFile->close();
 	pPostavkeFile->close();
+	delete pFiltrirano;
 	system("PAUSE");
 	return 0;
 }
@@ -1472,11 +1693,16 @@ int meni(int brojOpcija)
 	char const* POSTAVKE[brojOpcija];
 	POSTAVKE[0] = "Unos Korisnika";
 	POSTAVKE[1] = "Pregled Korisnika";
-	POSTAVKE[2] = "Opcija 3";
+	POSTAVKE[2] = "Pretraga Korisnika";
 	POSTAVKE[3] = "Opcija 4";
-	POSTAVKE[4] = "Opcija 5";
-	POSTAVKE[5] = "Postavke";
-	POSTAVKE[6] = "EXIT";	
+	POSTAVKE[4] = "Uplata Clanarina";
+	POSTAVKE[5] = "Opcija 6";
+	POSTAVKE[6] = "Opcija 7";
+	POSTAVKE[7] = "Opcija 8";
+	POSTAVKE[8] = "Opcija 9";
+	POSTAVKE[9] = "Opcija 10";
+	POSTAVKE[10] = "Postavke";
+	POSTAVKE[11] = "EXIT";	
 	LOKACIJA = "1.0.0.0";
 	selekcijaLogika(POSTAVKE, brojOpcija, LOKACIJA, "MENI:", printajNaslov);
 }
@@ -1484,7 +1710,7 @@ int meni(int brojOpcija)
 void POSTAVKEPromjena()
 {
 	ulaz:
-	LOKACIJA = "1.6.0.0";
+	LOKACIJA = "1.11.0.0";
 	int brojOpcija = 6, key = 0, odabir = 1;
 	char const* POSTAVKE[brojOpcija];
 	POSTAVKE[0] = "Promjeni Boju";
@@ -1519,7 +1745,7 @@ void POSTAVKEPromjena()
 		case 1:
 		{
 			case1:
-			LOKACIJA = "1.6.1.0";
+			LOKACIJA = "1.11.1.0";
 			int odabir1 = pGlobalPOSTAVKE->bojaReal+1, key1 = 0, boja;
 			int odabir2 = pGlobalPOSTAVKE->bojaReal+1;
 			if(pGlobalPOSTAVKE->tipSelekcije)
@@ -1624,7 +1850,7 @@ void POSTAVKEPromjena()
 		}
 		case 2:
 		{
-			LOKACIJA = "1.6.2.0";
+			LOKACIJA = "1.11.2.0";
 			int odabirTipSelekcije;
 			while(true)
 			{
@@ -1639,7 +1865,7 @@ void POSTAVKEPromjena()
 		{
 			char const* tempDatum;
 			int odabirFormatDatuma;
-			LOKACIJA = "1.6.3.0";
+			LOKACIJA = "1.11.3.0";
 			while(true)
 			{
 				if(pGlobalPOSTAVKE->tipFormatDatuma) tempDatum = "TRENUTNI FORMAT: DD/MM/GGGG";
@@ -1655,7 +1881,7 @@ void POSTAVKEPromjena()
 		{
 			char const* tempGrafik;
 			int odabirPrikaziGrafik;
-			LOKACIJA = "1.6.4.0";
+			LOKACIJA = "1.11.4.0";
 			while(true)
 			{
 				if(pGlobalPOSTAVKE->prikaziGrafik) tempGrafik = "FORMAT: PRIKAZUJE";
@@ -1669,7 +1895,7 @@ void POSTAVKEPromjena()
 		}
 		case 5:
 		{
-			LOKACIJA = "1.6.5.0";
+			LOKACIJA = "1.11.5.0";
 			if(*pSacuvano == true)
 				cout << "\n\tNema Promjena. [ENTER]\n";
 			else
@@ -1718,7 +1944,7 @@ void POSTAVKEPromjena()
 		case 6:
 		{
 			char const* tempReset = "VRACA SVE POSTAVKE NA TVORNICKE. DA LI STE SIGURNI?";
-			LOKACIJA = "1.6.6.0";
+			LOKACIJA = "1.11.6.0";
 			int reset = selekcijaLogika(RESET, 2, LOKACIJA, tempReset, printajNULL);
 			if(reset == 1)
 			{
