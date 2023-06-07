@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <conio.h>
+//#include <conio.h>
 #include <windows.h>
 #include <thread>
 #include <chrono>
@@ -30,9 +30,11 @@ struct POSTAVKE
 
 struct PAKETI
 {
-	float cijena;
-	string vrstaTreninga;
-	int sedmicnaFrekvencija;
+	int ID;
+	string Ime;
+	int BrojSedmicnihSesija;
+	int CijenaPoSesiji;
+	int UkupnaCijena;
 };
 
 struct DETALJI
@@ -137,6 +139,12 @@ ifstream* pInKorisniciFile = &inKorisniciFile;
 ofstream korisniciFile;
 ofstream* pKorisniciFile = &korisniciFile;
 
+fstream checkPaketiFile;
+ifstream inPaketiFile;
+ifstream* pInPaketiFile = &inPaketiFile;
+ofstream paketiFile;
+ofstream* pPaketiFile = &paketiFile;
+
 
 void printajNaslov();
 void teg();
@@ -205,6 +213,42 @@ void parseKORISNICI()//funkcija koja snima podatke vezane za korisnike iz pohran
 		strcpy(tempKorisnik.BrojTelefona, brojtel.c_str());
 		
 		Korisnici.push_back(tempKorisnik); //postavlja taj objekat u glavnu strukturu za korisnike
+		line = "";
+	}
+	
+}
+
+
+void parsePAKETI()
+{
+	PAKETI tempPaketi;
+	
+	string header;
+	getline(*pInPaketiFile, header);
+	
+	string line;
+	while(getline(*pInPaketiFile, line))
+	{
+		string ID, ime, brojSsesija, cijenaPoS, ukupnaCijena;
+		string tempString, discard;
+		
+		stringstream inputString(line);
+		getline(inputString, discard, ',');
+		getline(inputString, ID, ',');
+		
+		tempPaketi.ID = atoi(ID.c_str());
+		
+		getline(inputString, ime, ',');
+		getline(inputString, brojSsesija, ',');
+		getline(inputString, cijenaPoS, ',');
+		getline(inputString, ukupnaCijena, ',');
+		
+		tempPaketi.Ime=ime;
+		tempPaketi.BrojSedmicnihSesija= atoi(brojSsesija.c_str());
+		tempPaketi.CijenaPoSesiji= atoi(cijenaPoS.c_str());
+		tempPaketi.UkupnaCijena= atoi(ukupnaCijena.c_str());
+		
+		Paketi.push_back(tempPaketi);
 		line = "";
 	}
 	
@@ -411,7 +455,7 @@ vector<KORISNIK>* pretraga(string &termin, string &tempTermin)//povratni tip je 
 		if(godRod != "")//racuna dob korisnika
 			Korisnici[i].Dob = noviLokal.tm_year + 1900 - atoi(godRod.c_str());
 		else
-			Korisnici[i].Dob = NULL;
+			Korisnici[i].Dob = 0;
 		
 		KorisniciLower.push_back(Korisnici[i]);
 		
@@ -665,7 +709,7 @@ vector<KORISNIK>* pretraga(string &termin, string &tempTermin)//povratni tip je 
 				cout << KorisniciLower[i].Mje;
 			cout << endl;
 			cout << "Starost: ";
-			if(Korisnici[i].Dob != NULL)
+			if(Korisnici[i].Dob != 0)
 			{
 				if(to_string(KorisniciLower[i].Dob).find(tempTermin) != string::npos)
 				{
@@ -894,14 +938,14 @@ unosKorisnikaClassic(pFunkcija pGrafik)//ovaj argument sluzi za prenos grafik fu
 
 	//ocisti atribute temporanlog objekta
 	tempKorisnik.ID = velicina+1;
-	tempKorisnik.Ime[0] = NULL;
-	tempKorisnik.Prezime[0] = NULL;
-	tempKorisnik.Spol[0] = NULL;
-	tempKorisnik.Dan = "";
-	tempKorisnik.Mje = "";
-	tempKorisnik.God = "";
-	tempKorisnik.AdresaStanovanja[0] = NULL;
-	tempKorisnik.BrojTelefona[0] = NULL;
+
+	tempKorisnik.Ime[0] = 0;
+	tempKorisnik.Prezime[0] = 0;
+	tempKorisnik.Spol[0] = 0;
+	tempKorisnik.DatumRodjenja = "";
+	tempKorisnik.AdresaStanovanja[0] = 0;
+	tempKorisnik.BrojTelefona[0] = 0;
+
 	
 	char key;
 	while(true)
@@ -915,10 +959,11 @@ unosKorisnikaClassic(pFunkcija pGrafik)//ovaj argument sluzi za prenos grafik fu
 		cout << "\tUnos "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 		cout << velicina + 1; vratiBoju();
 		cout << ". Korisnika";
-			
+
 		//prikaz atributu, ako je atribut prazan onda printa "N/A"
 			cout << "\n\n\t\t(1/8) Uneseno Ime: ";
-			if(tempKorisnik.Ime[0] != NULL)
+			if(tempKorisnik.Ime[0] != 0)
+
 			{
 				odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 				cout << tempKorisnik.Ime; vratiBoju();
@@ -927,16 +972,16 @@ unosKorisnikaClassic(pFunkcija pGrafik)//ovaj argument sluzi za prenos grafik fu
 				cout << "N/A";
 			
 			cout << "\n\t\t(2/8) Uneseno Prezime: ";
-			if(tempKorisnik.Prezime[0] != NULL)
+			if(tempKorisnik.Prezime[0] != 0)
 			{
 				odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 				cout << tempKorisnik.Prezime; vratiBoju();
 			}
 			else
 				cout << "N/A";
-				
+
 			cout << "\n\t\t(3/8) Uneseni Spol: ";
-			if(tempKorisnik.Spol[0] != NULL)
+			if(tempKorisnik.Spol[0] != 0)
 			{
 				odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 				cout << tempKorisnik.Spol; vratiBoju();
@@ -972,16 +1017,17 @@ unosKorisnikaClassic(pFunkcija pGrafik)//ovaj argument sluzi za prenos grafik fu
 				cout << "N/A";
 				
 			cout << "\n\t\t(7/8) Unesena Adresa Stanovanja: ";
-			if(tempKorisnik.AdresaStanovanja[0] != NULL)
+			if(tempKorisnik.AdresaStanovanja[0] != 0)
+
 			{
 				odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 				cout << tempKorisnik.AdresaStanovanja; vratiBoju();
 			}
 			else
 				cout << "N/A";
-				
 			cout << "\n\t\t(8/8) Uneseni Broj Telefona: ";
-			if(tempKorisnik.BrojTelefona[0] != NULL)
+			if(tempKorisnik.BrojTelefona[0] != 0)
+
 			{
 				odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 				cout << tempKorisnik.BrojTelefona; vratiBoju();
@@ -1092,10 +1138,129 @@ unosKorisnikaClassic(pFunkcija pGrafik)//ovaj argument sluzi za prenos grafik fu
 	Korisnici.push_back(tempKorisnik);//pohrani temporalnog korisnika u glavni vektor Korisnika
 }
 
-void UplataClanarina()
+
+unosPaketaClassic(pFunkcija pGrafik)
 {
+	int lokacija = 0;
+	int velicina = Paketi.size();
+	PAKETI tempPaketi;
+
+	tempPaketi.ID = velicina+1;
+	tempPaketi.Ime[0] = 0;
+	tempPaketi.BrojSedmicnihSesija = 0;
+	tempPaketi.CijenaPoSesiji = 0;
+	tempPaketi.UkupnaCijena = 0;
 	
+	char key;
+	while(true)
+	{
+		lokacija = 0;
+		while(true)
+		{
+			system("CLS");
+		
+			cout << "\tNAZAD "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "[ESC] "; vratiBoju();
+			cout << "- NAPRIJED "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "[ENTER]\n\n"; vratiBoju();
+			cout << "\tUnos "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << velicina + 1; vratiBoju();
+			cout << ". Paketa";
+			
+			tempPaketi.ID = velicina + 1;
+			
+			if(tempPaketi.Ime[0] != 0)
+			{
+				cout << "\n\n\t\t(1/4) Uneseno Ime Paketa: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				cout << tempPaketi.Ime; vratiBoju();
+			}
+				
+			if(tempPaketi.BrojSedmicnihSesija != 0)
+			{
+				cout << "\n\t\t(2/4) Uneseni Broj Sedmicnih Sesija: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				cout << tempPaketi.BrojSedmicnihSesija; vratiBoju();
+			}
+				
+			if(tempPaketi.CijenaPoSesiji != 0)
+			{
+				cout << "\n\t\t(3/4) Unesena Cijena Po Sesiji: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				cout << tempPaketi.CijenaPoSesiji; vratiBoju();
+			}
+			
+			if(tempPaketi.UkupnaCijena != 0)
+			{
+				cout << "\n\t\t(4/4) Unesena Ukupna Cijena: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+				cout << tempPaketi.UkupnaCijena; vratiBoju();
+			}
+			
+			cout << "\n\n";
+			
+			if(lokacija == 4)
+				lokacija++;
+				
+				
+			switch(lokacija)
+			{
+				case 0:
+				{
+					cout << "\t\tUnesite Ime Paketa: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					getline(cin, tempPaketi.Ime); vratiBoju();
+					lokacija++;
+					break;
+				}
+				case 1:
+				{
+					cout << "\t\tUnesite Broj Sedmicnih Sesija: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					cin>>tempPaketi.BrojSedmicnihSesija; vratiBoju();
+					lokacija++;
+					break;
+				}
+				case 2:
+				{
+					cout << "\t\tUnesite Cijenu Po Sesiji: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					cin>>tempPaketi.CijenaPoSesiji; vratiBoju();
+					lokacija++;
+					break;
+				}
+				case 3:
+				{
+					cout << "\t\tUkupna Cijena: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+					cin>>tempPaketi.UkupnaCijena; vratiBoju();
+					lokacija++;
+					break;
+				}
+			}
+			if(lokacija == 5){
+			
+				Paketi.push_back(tempPaketi);
+					pPaketiFile->open("PaketiData.csv", ios::app);
+					
+					*pPaketiFile << " " << "," << tempPaketi.ID << ","
+									<< tempPaketi.Ime << ","
+									<< tempPaketi.BrojSedmicnihSesija << ","
+									<< tempPaketi.CijenaPoSesiji << ","
+									<< tempPaketi.UkupnaCijena << endl;
+					pPaketiFile->close();
+					break;
+		}
+		}
+		cout << "\n\n\t\tPonoviti Unos? NE "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ESC] "; vratiBoju();
+		cout << "- DA "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ENTER]\n\n"; vratiBoju();
+
+		key = _getch();
+			if(key == 27)
+				break;
+	}
+	Paketi.push_back(tempPaketi);
 }
+
+
+//void UplataClanarina()
+//{
+//	
+//}
 
 //moderniji nacin unosa korisnika. Program radi na sistemu _getch() koji stvara string termin, na ovom nacinu rada moguce je pritisnuti esc ili enter kako 
 //bi omoguilo korisniku izlaz iz unosa korisnika. Takodjer je ugradjen sistem medjumemorije koje kada korisnik unese jedan atribut, moze da se vrati na taj 
@@ -1122,15 +1287,15 @@ unosKorisnika(pFunkcija pGrafik)
 	
 	//ociste se vrijednosti atributa
 	tempKorisnik.ID = velicina+1;
-	tempKorisnik.Ime[0] = NULL;
-	tempKorisnik.Prezime[0] = NULL;
-	tempKorisnik.Spol[0] = NULL;
+	tempKorisnik.Ime[0] = 0;
+	tempKorisnik.Prezime[0] = 0;
+	tempKorisnik.Spol[0] = 0;
 	tempKorisnik.Dan = "";
 	tempKorisnik.Mje = "";
 	tempKorisnik.God = "";
 	tempKorisnik.DatumRodjenja = "";
-	tempKorisnik.AdresaStanovanja[0] = NULL;
-	tempKorisnik.BrojTelefona[0] = NULL;
+	tempKorisnik.AdresaStanovanja[0] = 0;
+	tempKorisnik.BrojTelefona[0] = 0;
 
 	string ime, prezime, spol, datum, adresa, brojtel, dan, mje, god;
 	char keyCheck;
@@ -1152,7 +1317,7 @@ unosKorisnika(pFunkcija pGrafik)
 		if(lokacija == 0){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
 		cout << "\tUneseno Ime: ";
 		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		if(tempKorisnik.Ime[0] != NULL) cout << tempKorisnik.Ime;
+		if(tempKorisnik.Ime[0] != 0) cout << tempKorisnik.Ime;
 		else							cout << "N/A";
 		vratiBoju();
 
@@ -1160,7 +1325,7 @@ unosKorisnika(pFunkcija pGrafik)
 		if(lokacija == 1){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
 		cout << "\tUneseno Prezime: ";
 		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		if(tempKorisnik.Prezime[0] != NULL) cout << tempKorisnik.Prezime;
+		if(tempKorisnik.Prezime[0] != 0) cout << tempKorisnik.Prezime;
 		else							cout << "N/A";
 		vratiBoju();
 		
@@ -1168,7 +1333,7 @@ unosKorisnika(pFunkcija pGrafik)
 		if(lokacija == 3){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }	
 		cout << "\tUneseni Spol: ";
 		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		if(tempKorisnik.Spol[0] != NULL) cout << tempKorisnik.Spol;
+		if(tempKorisnik.Spol[0] != 0) cout << tempKorisnik.Spol;
 		else							cout << "N/A";
 		vratiBoju();
 		
@@ -1200,7 +1365,7 @@ unosKorisnika(pFunkcija pGrafik)
 		if(lokacija == 7){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
 		cout << "\tUnesena Adresa Stanovanja: ";
 		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		if(tempKorisnik.AdresaStanovanja[0] != NULL) cout << tempKorisnik.AdresaStanovanja;
+		if(tempKorisnik.AdresaStanovanja[0] != 0) cout << tempKorisnik.AdresaStanovanja;
 		else							cout << "N/A";
 		vratiBoju();
 		
@@ -1208,7 +1373,7 @@ unosKorisnika(pFunkcija pGrafik)
 		if(lokacija == 8){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
 		cout << "\tUneseni Broj Telefona: ";
 		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		if(tempKorisnik.BrojTelefona[0] != NULL) cout << tempKorisnik.BrojTelefona;
+		if(tempKorisnik.BrojTelefona[0] != 0) cout << tempKorisnik.BrojTelefona;
 		else							cout << "N/A";
 		vratiBoju();
 		cout << "\n\n";
@@ -1314,7 +1479,7 @@ unosKorisnika(pFunkcija pGrafik)
 				if(odabir == 1)
 				{
 					strcpy(tempKorisnik.Spol, "Muski");
-					if(tempKorisnik.Spol[0] == NULL)
+					if(tempKorisnik.Spol[0] == 0)
 						tempString = "";
 					else if(lokacija == 3)
 						tempString = "Muski";
@@ -1323,14 +1488,14 @@ unosKorisnika(pFunkcija pGrafik)
 				else if(odabir == 2)
 				{
 					strcpy(tempKorisnik.Spol, "Zenski");
-					if(tempKorisnik.Spol[0] == NULL)
+					if(tempKorisnik.Spol[0] == 0)
 						tempString = "";
 					else if(lokacija == 3)
 						tempString = "Zenski";
 				}
 				else if(odabir == 3)
 				{
-					if(tempKorisnik.Spol[0] == NULL)
+					if(tempKorisnik.Spol[0] == 0)
 						tempString = "";
 					else if(lokacija == 3)
 						tempString = spol;
@@ -1338,7 +1503,7 @@ unosKorisnika(pFunkcija pGrafik)
 				else if(odabir == 4)
 				{
 					strcpy(tempKorisnik.Spol, "Radije ne bi Rekli");
-					if(tempKorisnik.Spol[0] == NULL)
+					if(tempKorisnik.Spol[0] == 0)
 						tempString = "";
 					else if(lokacija == 3)
 						tempString = "Radije ne bi Rekli";
@@ -1475,9 +1640,10 @@ unosKorisnika(pFunkcija pGrafik)
 					pKorisniciFile->close();
 					break;
 				}
-				
+
 				//ako je odgovarajuci atribut prazan, onda ce tempString biti prazan
-				if(tempKorisnik.Prezime[0] == NULL && lokacija == 1)
+				if(tempKorisnik.Prezime[0] == 0 && lokacija == 1)
+
 					tempString = "";
 				else if(lokacija == 0)
 					tempString = prezime;
@@ -1497,12 +1663,12 @@ unosKorisnika(pFunkcija pGrafik)
 				else if(lokacija == 5)
 					tempString = god;
 					
-				if(tempKorisnik.AdresaStanovanja[0] == NULL && lokacija == 7)
+				if(tempKorisnik.AdresaStanovanja[0] == 0 && lokacija == 7)
 					tempString = "";
 				else if(lokacija == 6)
 					tempString = adresa;
 				
-				if(tempKorisnik.BrojTelefona[0] == NULL && lokacija == 8)
+				if(tempKorisnik.BrojTelefona[0] == 0 && lokacija == 8)
 					tempString = "";
 				else if(lokacija == 7)
 					tempString = brojtel;
@@ -1551,6 +1717,253 @@ unosKorisnika(pFunkcija pGrafik)
 		}
 	
 	izlaz:{}
+}
+
+unosPaketa(pFunkcija pGrafik)
+{
+	mainUlaz:
+	int velicina = Paketi.size();
+	PAKETI tempPaketi;
+	string tempString = "";
+	char key;
+	
+	int odabir = 0, lokacija = 0;
+	
+	tempPaketi.ID = velicina+1;
+	tempPaketi.Ime[0] = 0;
+	tempPaketi.BrojSedmicnihSesija = 0;
+	tempPaketi.CijenaPoSesiji = 0;
+	tempPaketi.UkupnaCijena = 0;
+
+	string ImePaketa, BrojSedmicnihSesija, CijenaPoSesiji, UkupnaCijena;
+	char keyCheck;
+	int tempNum;
+	while(true)
+	{
+		system("CLS");
+		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "\tUnos Paketa:\n\n"; vratiBoju();
+		cout << "\tNAZAD "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ESC] "; vratiBoju();
+		cout << "- NAPRIJED "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ENTER]\n\n"; vratiBoju();
+		cout << "\tUnos "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << velicina + 1; vratiBoju();
+		cout << ". Paketa";
+		
+		cout << "\n\n\t\t";
+		if(lokacija == 0){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
+		cout << "\tUneseno Ime Paketa: ";
+		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		if(tempPaketi.Ime[0] != 0) cout << tempPaketi.Ime;
+		else							cout << "N/A";
+		vratiBoju();
+
+		cout << "\n\t\t";
+		if(lokacija == 1){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
+		cout << "\tUneseni Broj Sedmicnih Sesija: ";
+		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		if(tempPaketi.BrojSedmicnihSesija != 0) cout << tempPaketi.BrojSedmicnihSesija;
+		else							cout << "N/A";
+		vratiBoju();
+		
+		cout << "\n\t\t";
+		if(lokacija == 3){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }	
+		cout << "\tUnesena Cijena Po Sesiji: ";
+		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		if(	tempPaketi.CijenaPoSesiji != 0) cout << 	tempPaketi.CijenaPoSesiji;
+		else							cout << "N/A";
+		vratiBoju();
+		
+		cout << "\n\t\t";
+		if(lokacija == 4){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
+		cout << "\tUnesena Ukupna Cijena: ";
+		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		if(tempPaketi.UkupnaCijena != 0) cout << tempPaketi.UkupnaCijena;
+		else							cout << "N/A";
+		vratiBoju();
+		
+		
+		cout << "\n\n";
+		if(lokacija == 0)
+		{
+			cout << "\t\t("; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "1"; vratiBoju();
+			cout << "/4) Unesite Ime Paketa: ";
+		}
+			
+		if(lokacija == 1)
+		{
+			cout << "\t\t("; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "2"; vratiBoju();
+			cout << "/4) Unesite Broj Sesija Po Sedmici: ";
+		}
+			
+		
+		if(lokacija == 2)
+		{
+			cout << "\t\t("; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "3"; vratiBoju();
+			cout << "/4) Unesite Cijenu Po Sesiji: ";
+		}
+			
+		if(lokacija == 3)
+		{
+			cout << "\t\t("; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "4"; vratiBoju();
+			cout << "/4) Unesite Ukupnu Cijenu: ";
+		}
+
+			
+		if(lokacija == 4)
+		{
+			cout << "\t\tDa li ste zadovoljni unosom?\n\t\t";
+			cout << "\tNE "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "[ESC] "; vratiBoju();
+			cout << "- DA "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			cout << "[ENTER]\n\n"; vratiBoju();
+		}
+			
+
+		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+			
+		vratiBoju();
+		
+		if(lokacija == 2)
+		{
+			if(odabir != -1)
+			{
+				lokacija++;
+			
+		}
+		else
+		{
+			key = _getch();
+
+			if(key == 27)
+			{
+				if(lokacija == 0)
+					break;
+				else
+				{
+					if(lokacija == 1)
+						tempString = ImePaketa;
+					if(lokacija == 2)
+						tempString = BrojSedmicnihSesija;
+					if(lokacija == 3)
+						tempString = CijenaPoSesiji;
+					if(lokacija == 4)
+						tempString = UkupnaCijena;
+					lokacija--;
+				}
+			}
+			else if((key == 4 && odabir != 1 && odabir != 2 && odabir != 3) || key == 4 && (lokacija >= 3 ))
+			{
+				if(tempString.size() != 0)
+					tempString.pop_back();
+			}
+			else if(key == 13)
+			{
+				if(lokacija == 0)
+				{
+					tempPaketi.Ime= atoi(tempString.c_str());
+					ImePaketa = tempString;
+					
+				}
+				if(lokacija == 2)
+				{
+				tempPaketi.BrojSedmicnihSesija= atoi(tempString.c_str());
+					BrojSedmicnihSesija = tempString;
+				}
+				
+				if(lokacija == 3)
+				{
+					tempPaketi.CijenaPoSesiji= atoi(tempString.c_str());
+					CijenaPoSesiji = tempString;
+				}
+				
+				if(lokacija == 4)
+				{
+					tempPaketi.UkupnaCijena= atoi(tempString.c_str());
+					UkupnaCijena = tempString;
+				}
+				
+
+				
+				if(lokacija == 5)
+				{
+					Paketi.push_back(tempPaketi);
+					pPaketiFile->open("PaketiData.csv", ios::app);
+					
+					*pPaketiFile << " " << "," << tempPaketi.ID << ","
+									<< tempPaketi.Ime << ","
+									<< tempPaketi.BrojSedmicnihSesija << ","
+									<< tempPaketi.CijenaPoSesiji << ","
+									<< tempPaketi.UkupnaCijena << endl;
+					pPaketiFile->close();
+					break;
+				}
+				
+				if(tempPaketi.BrojSedmicnihSesija == 0 && lokacija == 1)
+					tempString = "";
+				else if(lokacija == 0)
+					tempString = BrojSedmicnihSesija;
+
+				if(tempPaketi.CijenaPoSesiji == 0 && lokacija == 2)
+					tempString = "";
+				else if(lokacija == 1)
+					tempString = CijenaPoSesiji;
+					
+				if(tempPaketi.UkupnaCijena == 0 && lokacija == 3)
+					tempString = "";
+				else if(lokacija == 2)
+					tempString = UkupnaCijena;
+				
+				lokacija++;
+			}
+			else if(!isalpha(key))
+			{
+				if(lokacija == 4)
+				{
+
+				}
+				tempString += key;
+			}
+			else if((lokacija < 4 || lokacija > 6) && lokacija != 8)
+			{
+				if(!(odabir != 3 && lokacija == 3))
+					tempString += key;
+			}
+		}
+	}
+	if(lokacija == 0)
+	{
+		cout << "\n\n\t\tDa li zelite izaci iz unosa Paketa?\n\t\t";
+		cout << "\tDA "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ESC] "; vratiBoju();
+		cout << "- NE "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ENTER]\n\n"; vratiBoju();
+	}
+	else if(lokacija == 5)
+	{
+		cout << "\n\n\t\tDa li zelite unijeti sljedeci Paket?\n\t\t";
+		cout << "\tNE "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ESC] "; vratiBoju();
+		cout << "- DA "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+		cout << "[ENTER]\n\n"; vratiBoju();
+	}
+	
+		if(lokacija != 4)
+		{
+			key = _getch();
+			if(key == 27)
+				goto izlaz;
+			else if(key == 13)
+				goto mainUlaz;
+		}
+	
+	izlaz:{}
+}
 }
 
 void prikaziKorisnike()
@@ -1704,6 +2117,44 @@ void printajTabeluKorisnika(){
     }
 
     tabelaPrint(KorisniciData, keys);
+    vratiBoju();
+    
+    cout<< endl << endl;
+    
+    cout << "NAZAD [ESC]";
+
+			char key= _getch();
+			if(key == 27){system("CLS");}
+    
+}
+
+void printajTabeluPaketa(){
+	system("CLS");
+	
+	cout<<endl;
+	
+	map<string, string> myMap;
+    vector<map<string, string>> PaketiData;
+    string text;
+    ifstream read;
+    read.open("PaketiData.csv");
+    
+odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+
+    getline(read, text);
+    vector<string> keys = tokens(text, ",");
+    vector<string> row;
+    
+    while (getline(read, text)) {
+        row = tokens(text, ",");
+        myMap.clear();
+        for (int i = 0; i < keys.size(); i++) {
+            myMap.insert(pair<string, string>(keys.at(i), row[i]));
+        }
+        PaketiData.push_back(myMap);
+    }
+
+    tabelaPrint(PaketiData, keys);
     vratiBoju();
     
     cout<< endl << endl;
@@ -2013,7 +2464,6 @@ void editujKorisnika(vector<KORISNIK>* pFiltrirano)
 	pKorisniciFile->close();
 }
 
-
 int main()
 {
 	//data tip za provjeru csv fajla, da li postoji
@@ -2033,6 +2483,19 @@ int main()
 	}
 	else
 		parsePOSTAVKE();//funckija koja pohranjuje iz HDD/SSD u RAM
+		
+		
+	checkPaketiFile.open("PaketiData.csv");
+	inPaketiFile.open("PaketiData.csv");
+	paketiFile.open("PaketiData.csv", ios::app);
+	
+	if(!(checkPaketiFile.good()))
+	{
+		*pPaketiFile << "Paketi,ImePaketa,BrojSesijaPoSedmici,CijenaSesije,UkupnaCijena" << endl;
+
+	}
+	else
+		parsePAKETI();
 		
 	checkKorisniciFile.open("KorisniciData.csv");
 	inKorisniciFile.open("KorisniciData.csv");
@@ -2099,11 +2562,15 @@ int main()
 			}
 			case 6:
 			{
-				UplataClanarinaMain(pFiltrirano);
+				pPaketiFile->close();
+				unosPaketaClassic(printajTeg);
+				
+				pPaketiFile->open("PaketiData.csv", ios::app);
 				break;
 			}
 			case 7:
 			{
+				printajTabeluPaketa();
 				break;
 			}
 			case 8:
@@ -2145,12 +2612,14 @@ int meni(int brojOpcija)
 {
 	char const* POSTAVKE[brojOpcija]; //niz opcija
 	POSTAVKE[0] = "Unos Korisnika";
-	POSTAVKE[1] = "Tabelarni Prikaz Korisnika";
+
+	POSTAVKE[1] = "Pregled Korisnika";
 	POSTAVKE[2] = "Pretraga Korisnika";
-	POSTAVKE[3] = "Edituj Korisnika";
-	POSTAVKE[4] = "Ukloni Korisnika";
-	POSTAVKE[5] = "Opcija 6";
-	POSTAVKE[6] = "Opcija 7";
+	POSTAVKE[3] = "Tabelarni Prikaz Korisnika";
+	POSTAVKE[4] = "Uplata Clanarina";
+	POSTAVKE[5] = "Unos Trening Paketa";
+	POSTAVKE[6] = "Tabelarni Ispis Paketa";
+
 	POSTAVKE[7] = "Opcija 8";
 	POSTAVKE[8] = "Opcija 9";
 	POSTAVKE[9] = "Opcija 10";
@@ -2431,4 +2900,3 @@ void POSTAVKEPromjena()
 				
 	}
 }
-
