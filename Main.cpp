@@ -2139,6 +2139,38 @@ void printajTabeluKorisnika(){
     
 }
 
+void printajTabeluPaketa1(){
+	system("CLS");
+	
+	cout<<endl;
+	
+	map<string, string> myMap;
+    vector<map<string, string>> PaketiData;
+    string text;
+    ifstream read;
+    read.open("PaketiData.csv");
+    
+odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+
+    getline(read, text);
+    vector<string> keys = tokens(text, ",");
+    vector<string> row;
+    
+    while (getline(read, text)) {
+        row = tokens(text, ",");
+        myMap.clear();
+        for (int i = 0; i < keys.size(); i++) {
+            myMap.insert(pair<string, string>(keys.at(i), row[i]));
+        }
+        PaketiData.push_back(myMap);
+    }
+
+    tabelaPrint(PaketiData, keys);
+    vratiBoju();
+    
+    cout<< endl << endl;
+}
+
 void printajTabeluPaketa(){
 	system("CLS");
 	
@@ -2264,6 +2296,55 @@ void obrisiKorisnika(vector<KORISNIK>* pFiltrirano)
 	else if(key == 27)
 		system("CLS");
 	pKorisniciFile->close();
+}
+
+
+
+
+//funckija za brisanje paketa na odnosu indeksa
+void obrisiPaket()
+{
+	int id;
+	char key;
+	int velicina = Paketi.size();
+	LOKACIJA = "8.0.0.0";
+	printajTabeluPaketa1();
+	
+	
+	
+	
+	cout << "Upisite ID Paketa koji zelite da izbrisete" << endl;
+	cin>> id;
+	cout << Paketi[id - 1].Ime;
+	string line;
+	cout << "Da li zelite obrisati Paket?\nDA = [ENTER] - NE = [ESC]";
+	key = _getch();
+	if(key == 13)
+	{
+		Paketi.erase(Paketi.begin() + id - 1);
+		//petlja smanjuje id svakog paketa poslije obrisanog za 1 tako da nadoknadi id koji nedostaje
+		for(int i = id - 1; i < velicina - 1; i++)
+			Paketi[i].ID--;
+		//otvara fajl PaketiData.csv u Truncated modu, brise podatke sa fajla.
+		pPaketiFile->open("PaketiData.csv", ios::trunc);
+		pPaketiFile->close();
+		//otvara fajl u Append modu i dodjeljujemu naslovni line i takodjer sve pakete bez obrisanog
+		pPaketiFile->open("PaketiData.csv", ios::app);
+		
+		*pPaketiFile << "Paketi,ImePaketa,BrojSesijaPoSedmici,CijenaSesije,UkupnaCijena" << endl;
+		
+		for(int i = 0; i < velicina - 1; i++)
+		{
+			*pPaketiFile << " " << "," << Paketi[i].ID << ","
+									<< Paketi[i].Ime << ","
+									<< Paketi[i].BrojSedmicnihSesija << ","
+									<< Paketi[i].CijenaPoSesiji << ","
+									<< Paketi[i].UkupnaCijena << endl;
+		}
+	}
+	else if(key == 27)
+		system("CLS");
+	pPaketiFile->close();
 }
 
 //funkcija koja pruza korisniku programa opciju da promijeni vrijednosti atributa nekoh korisnika
@@ -2586,6 +2667,7 @@ int main()
 			}
 			case 8:
 			{
+				obrisiPaket();
 				break;
 			}
 			case 9:
