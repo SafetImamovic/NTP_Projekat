@@ -40,17 +40,9 @@ struct PAKETI
 struct DETALJI
 {
 	bool Placeno;
+	float Razlika;
 	int brPlacenihMjeseci;
 	vector<PAKETI> PlaceniPaketi;
-};
-
-struct PAKET
-{
-	string ImePaketa;
-	int BrojSesija;
-	int CijenaPoSesiji;
-	int UkupnaCijena;
-	
 };
 
 struct KORISNIK
@@ -162,8 +154,6 @@ void parsePOSTAVKE()//funkcija koja snima podatke vezane za postavke iz pohranje
 	getline(*pInPostavkepostavkeFile, line, ','); pGlobalPOSTAVKE->prikaziGrafik = atoi(line.c_str()); pTempGlobalnePOSTAVKE->prikaziGrafik = atoi(line.c_str()); line = "";
 }
 
-
-
 void parseKORISNICI()//funkcija koja snima podatke vezane za korisnike iz pohranjene memorije u RAM tj. iz csv fajla za korisnike
 {
 	KORISNIK tempKorisnik;
@@ -215,9 +205,7 @@ void parseKORISNICI()//funkcija koja snima podatke vezane za korisnike iz pohran
 		Korisnici.push_back(tempKorisnik); //postavlja taj objekat u glavnu strukturu za korisnike
 		line = "";
 	}
-	
 }
-
 
 void parsePAKETI()
 {
@@ -251,7 +239,6 @@ void parsePAKETI()
 		Paketi.push_back(tempPaketi);
 		line = "";
 	}
-	
 }
 
 //ova funkcija se bavi interfejsom za odabir. Ima dva moda: tip selekcije sa strijelicama i sa unosom odabira manuelno
@@ -1147,7 +1134,7 @@ unosPaketaClassic(pFunkcija pGrafik)
 
     //vrijednosti atributa se ociste
 	tempPaketi.ID = velicina+1;
-	tempPaketi.Ime[0] = 0;
+	tempPaketi.Ime = "";
 	tempPaketi.BrojSedmicnihSesija = 0;
 	tempPaketi.CijenaPoSesiji = 0;
 	tempPaketi.UkupnaCijena = 0;
@@ -1155,11 +1142,15 @@ unosPaketaClassic(pFunkcija pGrafik)
 	char key;
 	while(true)
 	{
+		
+		ulaz:
+			cin.ignore(1000, '\n');
 		lokacija = 0;
 		while(true)
 		{
+
 			system("CLS"); //ocisti konzolu
-		
+      
 			cout << "\tNAZAD "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 			cout << "[ESC] "; vratiBoju();
 			cout << "- NAPRIJED "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
@@ -1170,7 +1161,7 @@ unosPaketaClassic(pFunkcija pGrafik)
 			
 			tempPaketi.ID = velicina + 1;
 			
-			if(tempPaketi.Ime[0] != 0)
+			if(tempPaketi.Ime != "")
 			{
 				cout << "\n\n\t\t(1/4) Uneseno Ime Paketa: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 				cout << tempPaketi.Ime; vratiBoju();
@@ -1206,6 +1197,7 @@ unosPaketaClassic(pFunkcija pGrafik)
 				{
 					cout << "\t\tUnesite Ime Paketa: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 					getline(cin, tempPaketi.Ime); vratiBoju();
+					cin.clear();
 					lokacija++;
 					break;
 				}
@@ -1213,13 +1205,26 @@ unosPaketaClassic(pFunkcija pGrafik)
 				{
 					cout << "\t\tUnesite Broj Sedmicnih Sesija: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 					cin>>tempPaketi.BrojSedmicnihSesija; vratiBoju();
+					if(cin.fail())
+					{
+						cin.clear();
+						cin.ignore(1000, '\n');
+						goto ulaz;
+					}
 					lokacija++;
 					break;
 				}
 				case 2:
 				{
+						
 					cout << "\t\tUnesite Cijenu Po Sesiji: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 					cin>>tempPaketi.CijenaPoSesiji; vratiBoju();
+					if(cin.fail())
+					{
+						cin.clear();
+						cin.ignore(1000, '\n');
+						goto ulaz;
+					}
 					lokacija++;
 					break;
 				}
@@ -1227,6 +1232,12 @@ unosPaketaClassic(pFunkcija pGrafik)
 				{
 					cout << "\t\tUkupna Cijena: "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 					cin>>tempPaketi.UkupnaCijena; vratiBoju();
+					if(cin.fail())
+					{
+						cin.clear();
+						cin.ignore(1000, '\n');
+						goto ulaz;
+					}
 					lokacija++;
 					break;
 				}
@@ -1253,15 +1264,16 @@ unosPaketaClassic(pFunkcija pGrafik)
 		key = _getch();
 			if(key == 27) // 27 jeste ASCII kod za Escape na tastaturi
 				break;
+			//else if(key == 13)
+			
 	}
 	Paketi.push_back(tempPaketi);
 }
 
-
-//void UplataClanarina()
-//{
-//	
-//}
+void UplataClanarina()
+{
+	
+}
 
 //moderniji nacin unosa korisnika. Program radi na sistemu _getch() koji stvara string termin, na ovom nacinu rada moguce je pritisnuti esc ili enter kako 
 //bi omoguilo korisniku izlaz iz unosa korisnika. Takodjer je ugradjen sistem medjumemorije koje kada korisnik unese jedan atribut, moze da se vrati na taj 
@@ -2225,21 +2237,45 @@ void OsobniPaketi() //trening paketi koje vlasnik zadaje a takodjer imaju i unap
 
 void UplataClanarinaMain(vector<KORISNIK>* pFiltrirano)
 {
-	LOKACIJA = "1.5.0.0";
+	int odabir;
+	int odabir2;
+	LOKACIJA = "10.0.0.0";
+	char const* CLANARINA[1]; //niz opcija
+	CLANARINA[0] = "Rok Kraja Clanarine";
+	CLANARINA[1] = "Odabir Trening Paketa";
+	odabir = selekcijaLogika(CLANARINA, 2, LOKACIJA, "CLANARINA:", printajNULL);
 	system("CLS");
-	int id = pretragaMain(pFiltrirano); //dobavlja trazeni ID Korisnika
-	cout << "\n\n";
-	cout << id << endl;
-	cout << Korisnici[id - 1].Ime;
-	
-	time_t sad;
-	sad = time(NULL); //uzme vrijeme od OS
-	time_t korisnik = mktime(&(Korisnici[0].VrijemeUclanjivanja)); //pretvara tm struct u time_t format radi lakseg poredjenja vremena i trazenja razlike
-	noviLokal = *localtime(&sad); // pridodaje time_t sadasnje vrijeme u struct NoviLokal, tako da mozemo imati pristup vremenskim jedinicama zasebno kao sek, min, sat itd.
-	cout << ctime(&korisnik); //Prikazuje vrijeme uclanjivanja korisnika
-	cout << ctime(&sad); // Prikazuje sadasnje vrijeme
-	
-	
+	if(odabir == 1)
+	{
+		int id = pretragaMain(pFiltrirano); //dobavlja trazeni ID Korisnika
+		cout << "\n\n";
+		time_t sad;
+		sad = time(NULL); //uzme vrijeme od OS
+		time_t korisnik = mktime(&(Korisnici[0].VrijemeUclanjivanja)); //pretvara tm struct u time_t format radi lakseg poredjenja vremena i trazenja razlike
+		noviLokal = *localtime(&sad); // pridodaje time_t sadasnje vrijeme u struct NoviLokal, tako da mozemo imati pristup vremenskim jedinicama zasebno kao sek, min, sat itd.
+		//cout << ctime(&korisnik); //Prikazuje vrijeme uclanjivanja korisnika
+		//cout << ctime(&sad); // Prikazuje sadasnje vrijeme
+		
+		Korisnici[id - 1].Evidencija.Razlika = difftime(korisnik, sad)/(3600*24);//trazi razliku u sekundama i dijeljenjem sa 3600*24 konvertujemo u dane
+		//cout << Korisnici[id - 1].Evidencija.Razlika;
+		cout << "Korisnik " << id << ". ima jos: " << 30 - static_cast<int>(Korisnici[id - 1].Evidencija.Razlika) << " dana do isteka clanarine\n";
+		cout << "Tacnije: " << 30 - Korisnici[id - 1].Evidencija.Razlika << " dana do isteka clanarine";
+	}
+	else if(odabir == 2)
+	{
+		int id = pretragaMain(pFiltrirano);
+		printajTabeluPaketa();
+		do
+		{
+			if(cin.fail())
+			{
+				cin.clear();
+				cin.ignore(1000, '\n');
+			}
+			cin >> odabir2;
+		}while(cin.fail() || odabir2 < 0 || odabir2 > pPaketi->size());
+		Korisnici[id - 1].Evidencija.PlaceniPaketi.push_back(pPaketi->at(odabir2 - 1));
+	}
 	
 	cout << "\n\nNAZAD [ESC]";
 	char key = _getch();
@@ -2309,9 +2345,6 @@ void obrisiPaket()
 	int velicina = Paketi.size();
 	LOKACIJA = "8.0.0.0";
 	printajTabeluPaketa1();
-	
-	
-	
 	
 	cout << "Upisite ID Paketa koji zelite da izbrisete" << endl;
 	cin>> id;
@@ -2549,10 +2582,11 @@ void editujKorisnika(vector<KORISNIK>* pFiltrirano)
 				}
 				break;
 			}
-			else if(key == 27)
-				system("CLS");
+			
 		}
 	}
+	else if(key == 27)
+		system("CLS");
 	pKorisniciFile->close();
 }
 
@@ -2635,29 +2669,64 @@ int main()
 			}
 			case 3:
 			{
-				pretragaMain(pFiltrirano);
+				char y;
+				if(Korisnici.size() != 0)
+					pretragaMain(pFiltrirano);
+				else
+				{
+					system("CLS");
+					cout << "Baza Podataka je Prazna\n\nNAZAD = [ESC]";
+					y = _getch();
+					if(y == 27)
+						system("CLS");
+				}
 				break;
 			}
 			case 4:
 			{
-				pKorisniciFile->close();
-				editujKorisnika(pFiltrirano);
-				pKorisniciFile->open("KorisniciData.csv", ios::app);
+				char y;
+				if(Korisnici.size() != 0)
+				{
+					pKorisniciFile->close();
+					editujKorisnika(pFiltrirano);
+					pKorisniciFile->open("KorisniciData.csv", ios::app);
+				}
+				else
+				{
+					system("CLS");
+					cout << "Baza Podataka je Prazna\n\nNAZAD = [ESC]";
+					y = _getch();
+					if(y == 27)
+						system("CLS");
+				}
 				break;
 			}
 			case 5:
 			{
-				pKorisniciFile->close();
-				obrisiKorisnika(pFiltrirano);
-				pKorisniciFile->open("KorisniciData.csv", ios::app);
+				char y;
+				if(Korisnici.size() != 0)
+				{
+					pKorisniciFile->close();
+					obrisiKorisnika(pFiltrirano);
+					pKorisniciFile->open("KorisniciData.csv", ios::app);
+				}
+				else
+				{
+					system("CLS");
+					cout << "Baza Podataka je Prazna\n\nNAZAD = [ESC]";
+					y = _getch();
+					if(y == 27)
+						system("CLS");
+				}
 				break;
 			}
 			case 6:
 			{
+				//cin.ignore(1000, '\n');
 				pPaketiFile->close();
 				unosPaketaClassic(printajTeg);
-				
 				pPaketiFile->open("PaketiData.csv", ios::app);
+				
 				break;
 			}
 			case 7:
@@ -2676,6 +2745,17 @@ int main()
 			}
 			case 10:
 			{
+				char y;
+				if(Korisnici.size() != 0)
+					UplataClanarinaMain(pFiltrirano);
+				else
+				{
+					system("CLS");
+					cout << "Baza Podataka je Prazna\n\nNAZAD = [ESC]";
+					y = _getch();
+					if(y == 27)
+						system("CLS");
+				}
 				break;
 			}
 			case 11:
@@ -2706,16 +2786,15 @@ int meni(int brojOpcija)
 	char const* POSTAVKE[brojOpcija]; //niz opcija
 	POSTAVKE[0] = "Unos Korisnika";
 
-	POSTAVKE[1] = "Pregled Korisnika";
+	POSTAVKE[1] = "Tabelarni Ispis Korisnika";
 	POSTAVKE[2] = "Pretraga Korisnika";
-	POSTAVKE[3] = "Tabelarni Prikaz Korisnika";
-	POSTAVKE[4] = "Uplata Clanarina";
+	POSTAVKE[3] = "Editovanje Korisnika";
+	POSTAVKE[4] = "Brisanje Korisnika";
 	POSTAVKE[5] = "Unos Trening Paketa";
 	POSTAVKE[6] = "Tabelarni Ispis Paketa";
-
-	POSTAVKE[7] = "Opcija 8";
+	POSTAVKE[7] = "";
 	POSTAVKE[8] = "Opcija 9";
-	POSTAVKE[9] = "Opcija 10";
+	POSTAVKE[9] = "Evidencija o Clanarini";
 	POSTAVKE[10] = "Postavke";
 	POSTAVKE[11] = "EXIT";
 	LOKACIJA = "1.0.0.0";
