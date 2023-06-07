@@ -1140,9 +1140,6 @@ unosPaketaClassic(pFunkcija pGrafik)
 	tempPaketi.UkupnaCijena = 0;
 	
 	char key;
-	while(true)
-	{
-		
 		ulaz:
 			cin.ignore(1000, '\n');
 		lokacija = 0;
@@ -1244,7 +1241,6 @@ unosPaketaClassic(pFunkcija pGrafik)
 			}
 			if(lokacija == 5){
 			//lokacija 5 predstavlja kraj
-				Paketi.push_back(tempPaketi);
 					pPaketiFile->open("PaketiData.csv", ios::app); //otvaranje PaketiData excel file-a u append modu
 					
 					*pPaketiFile << " " << "," << tempPaketi.ID << ","
@@ -1254,19 +1250,15 @@ unosPaketaClassic(pFunkcija pGrafik)
 									<< tempPaketi.UkupnaCijena << endl;
 					pPaketiFile->close();
 					break;
+			}
+		
 		}
-		}
-		cout << "\n\n\t\tPonoviti Unos? NE "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		cout << "[ESC] "; vratiBoju();
-		cout << "- DA "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		cout << "[ENTER]\n\n"; vratiBoju();
-
 		key = _getch();
-			if(key == 27) // 27 jeste ASCII kod za Escape na tastaturi
-				break;
+			
+
 			//else if(key == 13)
 			
-	}
+	
 	Paketi.push_back(tempPaketi);
 }
 
@@ -1744,7 +1736,7 @@ unosPaketa(pFunkcija pGrafik)
 	int odabir = 0, lokacija = 0;
 	
 	tempPaketi.ID = velicina+1;
-	tempPaketi.Ime[0] = 0;
+	tempPaketi.Ime = "";
 	tempPaketi.BrojSedmicnihSesija = 0;
 	tempPaketi.CijenaPoSesiji = 0;
 	tempPaketi.UkupnaCijena = 0;
@@ -1769,7 +1761,7 @@ unosPaketa(pFunkcija pGrafik)
 		if(lokacija == 0){ odabranaBoja(pGlobalPOSTAVKE->bojaReal); cout << BAR; vratiBoju(); }
 		cout << "\tUneseno Ime Paketa: ";
 		odabranaBoja(pGlobalPOSTAVKE->bojaReal);
-		if(tempPaketi.Ime[0] != 0) cout << tempPaketi.Ime;
+		if(tempPaketi.Ime != "") cout << tempPaketi.Ime;
 		else							cout << "N/A";
 		vratiBoju();
 
@@ -2243,7 +2235,8 @@ void UplataClanarinaMain(vector<KORISNIK>* pFiltrirano)
 	char const* CLANARINA[1]; //niz opcija
 	CLANARINA[0] = "Rok Kraja Clanarine";
 	CLANARINA[1] = "Odabir Trening Paketa";
-	odabir = selekcijaLogika(CLANARINA, 2, LOKACIJA, "CLANARINA:", printajNULL);
+	CLANARINA[2] = "Pregled Trening Paketa";
+	odabir = selekcijaLogika(CLANARINA, 3, LOKACIJA, "CLANARINA:", printajNULL);
 	system("CLS");
 	if(odabir == 1)
 	{
@@ -2264,7 +2257,7 @@ void UplataClanarinaMain(vector<KORISNIK>* pFiltrirano)
 	else if(odabir == 2)
 	{
 		int id = pretragaMain(pFiltrirano);
-		printajTabeluPaketa();
+		printajTabeluPaketa1();
 		do
 		{
 			if(cin.fail())
@@ -2272,9 +2265,20 @@ void UplataClanarinaMain(vector<KORISNIK>* pFiltrirano)
 				cin.clear();
 				cin.ignore(1000, '\n');
 			}
+			cout << "Unesite ID Paketa: ";
 			cin >> odabir2;
 		}while(cin.fail() || odabir2 < 0 || odabir2 > pPaketi->size());
 		Korisnici[id - 1].Evidencija.PlaceniPaketi.push_back(pPaketi->at(odabir2 - 1));
+	}
+	else if(odabir == 3)
+	{
+		int id = pretragaMain(pFiltrirano);
+		cout << "Paket: ";
+		cout << "ID: " << Korisnici[id - 1].Evidencija.PlaceniPaketi[0].ID << "\n";
+		cout << "Ime: " << Korisnici[id - 1].Evidencija.PlaceniPaketi[0].Ime << "\n";
+		cout << "Broj Sedmicnih Sesija: " << Korisnici[id - 1].Evidencija.PlaceniPaketi[0].BrojSedmicnihSesija << "\n";
+		cout << "Cijena Po Sesiji: " << Korisnici[id - 1].Evidencija.PlaceniPaketi[0].CijenaPoSesiji << "\n";
+		cout << "Ukupna Cijena: " << Korisnici[id - 1].Evidencija.PlaceniPaketi[0].UkupnaCijena << "\n";
 	}
 	
 	cout << "\n\nNAZAD [ESC]";
@@ -2340,44 +2344,61 @@ void obrisiKorisnika(vector<KORISNIK>* pFiltrirano)
 //funckija za brisanje paketa na odnosu indeksa
 void obrisiPaket()
 {
-	int id;
+	int id = -1;
 	char key;
 	int velicina = Paketi.size();
 	LOKACIJA = "8.0.0.0";
 	printajTabeluPaketa1();
 	
-	cout << "Upisite ID Paketa koji zelite da izbrisete" << endl;
-	cin>> id;
-	cout << Paketi[id - 1].Ime;
+	do
+	{
+		if(cin.fail())
+		{
+			cin.clear();
+			cin.ignore(1000, '\n');
+		}
+		if(id == 0)
+			break;
+		cout << "Upisite ID Paketa koji zelite da izbrisete" << endl;
+		cin>> id;
+	}while(cin.fail() || id < 1 || id > velicina);
+	
+//	cout << Paketi[id - 1].Ime;
 	string line;
 	cout << "Da li zelite obrisati Paket?\nDA = [ENTER] - NE = [ESC]";
-	key = _getch();
-	if(key == 13)
+	
+	if(id != 0)
 	{
-		Paketi.erase(Paketi.begin() + id - 1);
-		//petlja smanjuje id svakog paketa poslije obrisanog za 1 tako da nadoknadi id koji nedostaje
-		for(int i = id - 1; i < velicina - 1; i++)
-			Paketi[i].ID--;
-		//otvara fajl PaketiData.csv u Truncated modu, brise podatke sa fajla.
-		pPaketiFile->open("PaketiData.csv", ios::trunc);
-		pPaketiFile->close();
-		//otvara fajl u Append modu i dodjeljujemu naslovni line i takodjer sve pakete bez obrisanog
-		pPaketiFile->open("PaketiData.csv", ios::app);
-		
-		*pPaketiFile << "Paketi,ImePaketa,BrojSesijaPoSedmici,CijenaSesije,UkupnaCijena" << endl;
-		
-		for(int i = 0; i < velicina - 1; i++)
+		key = _getch();
+		if(key == 13)
 		{
-			*pPaketiFile << " " << "," << Paketi[i].ID << ","
-									<< Paketi[i].Ime << ","
-									<< Paketi[i].BrojSedmicnihSesija << ","
-									<< Paketi[i].CijenaPoSesiji << ","
-									<< Paketi[i].UkupnaCijena << endl;
+			Paketi.erase(Paketi.begin() + id - 1);
+			//petlja smanjuje id svakog paketa poslije obrisanog za 1 tako da nadoknadi id koji nedostaje
+			for(int i = id - 1; i < velicina - 1; i++)
+				Paketi[i].ID--;
+			//otvara fajl PaketiData.csv u Truncated modu, brise podatke sa fajla.
+			pPaketiFile->open("PaketiData.csv", ios::trunc);
+			pPaketiFile->close();
+			//otvara fajl u Append modu i dodjeljujemu naslovni line i takodjer sve pakete bez obrisanog
+			pPaketiFile->open("PaketiData.csv", ios::app);
+			
+			*pPaketiFile << "Paketi,ID,ImePaketa,BrojSesijaPoSedmici,CijenaSesije,UkupnaCijena" << endl;
+			
+			for(int i = 0; i < velicina - 1; i++)
+			{
+				*pPaketiFile << " " << "," << Paketi[i].ID << ","
+										<< Paketi[i].Ime << ","
+										<< Paketi[i].BrojSedmicnihSesija << ","
+										<< Paketi[i].CijenaPoSesiji << ","
+										<< Paketi[i].UkupnaCijena << endl;
+			}
 		}
+		else if(key == 27)
+			system("CLS");
+			pPaketiFile->close();
 	}
-	else if(key == 27)
-		system("CLS");
-	pPaketiFile->close();
+	
+	
 }
 
 //funkcija koja pruza korisniku programa opciju da promijeni vrijednosti atributa nekoh korisnika
@@ -2617,7 +2638,7 @@ int main()
 	
 	if(!(checkPaketiFile.good()))
 	{
-		*pPaketiFile << "Paketi,ImePaketa,BrojSesijaPoSedmici,CijenaSesije,UkupnaCijena" << endl;
+		*pPaketiFile << "Paketi,ID,ImePaketa,BrojSesijaPoSedmici,CijenaSesije,UkupnaCijena" << endl;
 
 	}
 	else
@@ -2736,7 +2757,9 @@ int main()
 			}
 			case 8:
 			{
+				pPaketiFile->close();
 				obrisiPaket();
+				pPaketiFile->open("PaketiData.csv", ios::app);
 				break;
 			}
 			case 9:
@@ -2792,7 +2815,7 @@ int meni(int brojOpcija)
 	POSTAVKE[4] = "Brisanje Korisnika";
 	POSTAVKE[5] = "Unos Trening Paketa";
 	POSTAVKE[6] = "Tabelarni Ispis Paketa";
-	POSTAVKE[7] = "";
+	POSTAVKE[7] = "Brisanje Paketa";
 	POSTAVKE[8] = "Opcija 9";
 	POSTAVKE[9] = "Evidencija o Clanarini";
 	POSTAVKE[10] = "Postavke";
