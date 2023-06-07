@@ -11,7 +11,7 @@
 #include "Includes/grafici.h" // putanja do header fajla koji sadrzi ASCII grafike koje smo koristili
 #include <string>
 #include <ctime>
-#include <map>
+#include <map>  
 using namespace std;
 
 HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);//windows handle koji kontrolise output stream, HANDLE je data tip koji 
@@ -1125,13 +1125,14 @@ unosKorisnikaClassic(pFunkcija pGrafik)//ovaj argument sluzi za prenos grafik fu
 	Korisnici.push_back(tempKorisnik);//pohrani temporalnog korisnika u glavni vektor Korisnika
 }
 
-
+//Unos paketa na klasicni nacin koristenjem slicnih komandi kao kod klasicnog unosa Korisnika
 unosPaketaClassic(pFunkcija pGrafik)
 {
 	int lokacija = 0;
 	int velicina = Paketi.size();
 	PAKETI tempPaketi;
 
+    //vrijednosti atributa se ociste
 	tempPaketi.ID = velicina+1;
 	tempPaketi.Ime = "";
 	tempPaketi.BrojSedmicnihSesija = 0;
@@ -1147,9 +1148,9 @@ unosPaketaClassic(pFunkcija pGrafik)
 		lokacija = 0;
 		while(true)
 		{
-			
-			system("CLS");
-		
+
+			system("CLS"); //ocisti konzolu
+      
 			cout << "\tNAZAD "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 			cout << "[ESC] "; vratiBoju();
 			cout << "- NAPRIJED "; odabranaBoja(pGlobalPOSTAVKE->bojaReal);
@@ -1242,9 +1243,9 @@ unosPaketaClassic(pFunkcija pGrafik)
 				}
 			}
 			if(lokacija == 5){
-			
+			//lokacija 5 predstavlja kraj
 				Paketi.push_back(tempPaketi);
-					pPaketiFile->open("PaketiData.csv", ios::app);
+					pPaketiFile->open("PaketiData.csv", ios::app); //otvaranje PaketiData excel file-a u append modu
 					
 					*pPaketiFile << " " << "," << tempPaketi.ID << ","
 									<< tempPaketi.Ime << ","
@@ -1261,7 +1262,7 @@ unosPaketaClassic(pFunkcija pGrafik)
 		cout << "[ENTER]\n\n"; vratiBoju();
 
 		key = _getch();
-			if(key == 27)
+			if(key == 27) // 27 jeste ASCII kod za Escape na tastaturi
 				break;
 			//else if(key == 13)
 			
@@ -1731,6 +1732,7 @@ unosKorisnika(pFunkcija pGrafik)
 	izlaz:{}
 }
 
+
 unosPaketa(pFunkcija pGrafik)
 {
 	mainUlaz:
@@ -2058,8 +2060,11 @@ void prikaziKorisnike()
 	izlaz:{}
 }
 
-void tabelaPrint(vector<map<string, string>>& KorisniciData, vector<string>& keys) {
-    int KorisniciData_size = KorisniciData.size();
+//Funkcija napisana za Tabelarni ispis koristeci mape zbog efikasnosti i lakseg ispisa  
+void tabelaPrint(vector<map<string, string>>& KorisniciData, vector<string>& keys) { 
+//Deklarira funkciju tabelaPrint koja uzima referencu za mapu vektora "KorisniciData" i referencu do vektora stringova "keys"
+    int KorisniciData_size = KorisniciData.size(); 
+	//deklarira integer varijablu "KorisniciData_size" i dodijeli "KorisniciData" velicinu koristeci "size()" funkciju
     int column_count = keys.size();
     int* col_sizes = new int[column_count];
     for (int i = 0; i < column_count; i++) {
@@ -2070,9 +2075,12 @@ void tabelaPrint(vector<map<string, string>>& KorisniciData, vector<string>& key
             }
         }
     }
-odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+odabranaBoja(pGlobalPOSTAVKE->bojaReal); //funkcija za dodijeljivanje trenutne podesene boje
     for (int i = 0; i < column_count; i++) {
         cout << setw(col_sizes[i]) << left << keys.at(i) << "|";
+        //printa i-tov key od 'keys' koristeci 'setw' da podesi sirinu ispisa
+        //left se koristi za poravnanje ispisa u lijevu stranu
+        // "|" da postavi vertikalnu crtu nakon svakog key-a
     }
     cout << endl;
 
@@ -2089,10 +2097,12 @@ odabranaBoja(pGlobalPOSTAVKE->bojaReal);
 }
 
 vector<string> tokens(string s, string delimiter) {
+	//Deklarira funkciju pod nazivom "tokens" koja uzima dva stringa "s" i "delimiter"
     vector<string> v;
     size_t pos = 0;
     string token;
     while ((pos = s.find(delimiter)) != std::string::npos) {
+    	//zapocinje while loop koja ide dokle god je 'delimiter' pronadjen u stringu 's'
         token = s.substr(0, pos);
         v.push_back(token);
         s.erase(0, pos + delimiter.length());
@@ -2102,13 +2112,14 @@ vector<string> tokens(string s, string delimiter) {
 }
 
 void printajTabeluKorisnika(){
-	LOKACIJA = "1.2.0.0";
-	system("CLS");
+	LOKACIJA = "1.2.0.0"; //lokacija = 1, Meni lokacija = 1.1, prva opcija lokacija = 1.2, druga opcija itd
+	system("CLS"); //cisti konzolu
 	
 	cout<<endl;
 	
 	map<string, string> myMap;
     vector<map<string, string>> KorisniciData;
+    //Deklarira prazni vektor mapa, gdje svaka mapa posjeduje 'keys' i vrijednosti tipa stringa nazvanog KorisniciData.
     string text;
     ifstream read;
     read.open("KorisniciData.csv");
@@ -2136,8 +2147,40 @@ void printajTabeluKorisnika(){
     cout << "NAZAD [ESC]";
 
 			char key= _getch();
-			if(key == 27){system("CLS");}
+			if(key == 27){system("CLS");} // 27 jeste ASCII kod za Escape na tastaturi
     
+}
+
+void printajTabeluPaketa1(){
+	system("CLS");
+	
+	cout<<endl;
+	
+	map<string, string> myMap;
+    vector<map<string, string>> PaketiData;
+    string text;
+    ifstream read;
+    read.open("PaketiData.csv");
+    
+odabranaBoja(pGlobalPOSTAVKE->bojaReal);
+
+    getline(read, text);
+    vector<string> keys = tokens(text, ",");
+    vector<string> row;
+    
+    while (getline(read, text)) {
+        row = tokens(text, ",");
+        myMap.clear();
+        for (int i = 0; i < keys.size(); i++) {
+            myMap.insert(pair<string, string>(keys.at(i), row[i]));
+        }
+        PaketiData.push_back(myMap);
+    }
+
+    tabelaPrint(PaketiData, keys);
+    vratiBoju();
+    
+    cout<< endl << endl;
 }
 
 void printajTabeluPaketa(){
@@ -2289,6 +2332,52 @@ void obrisiKorisnika(vector<KORISNIK>* pFiltrirano)
 	else if(key == 27)
 		system("CLS");
 	pKorisniciFile->close();
+}
+
+
+
+
+//funckija za brisanje paketa na odnosu indeksa
+void obrisiPaket()
+{
+	int id;
+	char key;
+	int velicina = Paketi.size();
+	LOKACIJA = "8.0.0.0";
+	printajTabeluPaketa1();
+	
+	cout << "Upisite ID Paketa koji zelite da izbrisete" << endl;
+	cin>> id;
+	cout << Paketi[id - 1].Ime;
+	string line;
+	cout << "Da li zelite obrisati Paket?\nDA = [ENTER] - NE = [ESC]";
+	key = _getch();
+	if(key == 13)
+	{
+		Paketi.erase(Paketi.begin() + id - 1);
+		//petlja smanjuje id svakog paketa poslije obrisanog za 1 tako da nadoknadi id koji nedostaje
+		for(int i = id - 1; i < velicina - 1; i++)
+			Paketi[i].ID--;
+		//otvara fajl PaketiData.csv u Truncated modu, brise podatke sa fajla.
+		pPaketiFile->open("PaketiData.csv", ios::trunc);
+		pPaketiFile->close();
+		//otvara fajl u Append modu i dodjeljujemu naslovni line i takodjer sve pakete bez obrisanog
+		pPaketiFile->open("PaketiData.csv", ios::app);
+		
+		*pPaketiFile << "Paketi,ImePaketa,BrojSesijaPoSedmici,CijenaSesije,UkupnaCijena" << endl;
+		
+		for(int i = 0; i < velicina - 1; i++)
+		{
+			*pPaketiFile << " " << "," << Paketi[i].ID << ","
+									<< Paketi[i].Ime << ","
+									<< Paketi[i].BrojSedmicnihSesija << ","
+									<< Paketi[i].CijenaPoSesiji << ","
+									<< Paketi[i].UkupnaCijena << endl;
+		}
+	}
+	else if(key == 27)
+		system("CLS");
+	pPaketiFile->close();
 }
 
 //funkcija koja pruza korisniku programa opciju da promijeni vrijednosti atributa nekoh korisnika
@@ -2647,6 +2736,7 @@ int main()
 			}
 			case 8:
 			{
+				obrisiPaket();
 				break;
 			}
 			case 9:
